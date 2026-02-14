@@ -1,0 +1,30 @@
+{
+  "name": "create-qa-app",
+  "version": "0.1.0",
+  "description": "Scaffold type-safe automation testing projects",
+  "type": "module",
+  "bin": {
+    "create-qa-app": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run typecheck"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "@clack/prompts": "latest",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
