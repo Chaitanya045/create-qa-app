@@ -1,13 +1,119 @@
 import type { Architecture, CliConfig, Framework } from "../core/schema";
 
-export type TemplateFile = {
-  path: string;
-  content: string;
+export type TemplateAsset = {
+  source: string;
+  destination: string;
 };
 
-function toJson(value: unknown): string {
-  return `${JSON.stringify(value, null, 2)}\n`;
-}
+export type TemplateManifest = {
+  assets: TemplateAsset[];
+  variables: Record<string, string>;
+};
+
+const SHARED_ASSETS: TemplateAsset[] = [
+  {
+    source: "base/common/.gitignore.tpl",
+    destination: ".gitignore"
+  }
+];
+
+const FRAMEWORK_ASSETS: Record<Framework, TemplateAsset[]> = {
+  playwright: [
+    {
+      source: "frameworks/playwright/package.json.tpl",
+      destination: "package.json"
+    },
+    {
+      source: "frameworks/playwright/tsconfig.json.tpl",
+      destination: "tsconfig.json"
+    },
+    {
+      source: "frameworks/playwright/README.md.tpl",
+      destination: "README.md"
+    },
+    {
+      source: "frameworks/playwright/playwright.config.ts.tpl",
+      destination: "playwright.config.ts"
+    },
+    {
+      source: "frameworks/playwright/src/config/env.ts.tpl",
+      destination: "src/config/env.ts"
+    }
+  ],
+  cypress: [
+    {
+      source: "frameworks/cypress/package.json.tpl",
+      destination: "package.json"
+    },
+    {
+      source: "frameworks/cypress/tsconfig.json.tpl",
+      destination: "tsconfig.json"
+    },
+    {
+      source: "frameworks/cypress/README.md.tpl",
+      destination: "README.md"
+    },
+    {
+      source: "frameworks/cypress/cypress.config.ts.tpl",
+      destination: "cypress.config.ts"
+    },
+    {
+      source: "frameworks/cypress/cypress/support/env.ts.tpl",
+      destination: "cypress/support/env.ts"
+    },
+    {
+      source: "frameworks/cypress/cypress/support/e2e.ts.tpl",
+      destination: "cypress/support/e2e.ts"
+    }
+  ]
+};
+
+const ARCHITECTURE_ASSETS: Record<Framework, Record<Architecture, TemplateAsset[]>> = {
+  playwright: {
+    pom: [
+      {
+        source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
+        destination: "src/pages/home.page.ts"
+      },
+      {
+        source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
+        destination: "tests/home.spec.ts"
+      }
+    ],
+    feature: [
+      {
+        source: "frameworks/playwright/architectures/feature/tests/home/home.page.ts.tpl",
+        destination: "tests/home/home.page.ts"
+      },
+      {
+        source: "frameworks/playwright/architectures/feature/tests/home/home.spec.ts.tpl",
+        destination: "tests/home/home.spec.ts"
+      }
+    ]
+  },
+  cypress: {
+    pom: [
+      {
+        source: "frameworks/cypress/architectures/pom/cypress/support/pages/home.page.ts.tpl",
+        destination: "cypress/support/pages/home.page.ts"
+      },
+      {
+        source: "frameworks/cypress/architectures/pom/cypress/e2e/home.cy.ts.tpl",
+        destination: "cypress/e2e/home.cy.ts"
+      }
+    ],
+    feature: [
+      {
+        source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.fixture.ts.tpl",
+        destination: "cypress/e2e/home/home.fixture.ts"
+      },
+      {
+        source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.cy.ts.tpl",
+        destination: "cypress/e2e/home/home.cy.ts"
+      }
+    ]
+  }
+};
 
 function toPackageName(projectName: string): string {
   const normalized = projectName
@@ -21,362 +127,26 @@ function toPackageName(projectName: string): string {
   return normalized || "qa-project";
 }
 
-function createPackageJson(config: CliConfig): string {
-  const sharedScripts = {
-    typecheck: "tsc --noEmit"
+function getFrameworkLabel(framework: Framework): string {
+  return framework === "playwright" ? "Playwright" : "Cypress";
+}
+
+function getArchitectureLabel(architecture: Architecture): string {
+  return architecture === "pom" ? "Page Object Model (POM)" : "Feature Driven";
+}
+
+export function createTemplateManifest(config: CliConfig): TemplateManifest {
+  return {
+    assets: [
+      ...SHARED_ASSETS,
+      ...FRAMEWORK_ASSETS[config.framework],
+      ...ARCHITECTURE_ASSETS[config.framework][config.architecture]
+    ],
+    variables: {
+      projectName: config.projectName,
+      packageName: toPackageName(config.projectName),
+      frameworkLabel: getFrameworkLabel(config.framework),
+      architectureLabel: getArchitectureLabel(config.architecture)
+    }
   };
-
-  if (config.framework === "playwright") {
-    return toJson({
-      name: toPackageName(config.projectName),
-      version: "0.1.0",
-      private: true,
-      type: "module",
-      scripts: {
-        ...sharedScripts,
-        test: "playwright test",
-        "test:ui": "playwright test --ui",
-        "test:headed": "playwright test --headed",
-        "report:html": "playwright show-report",
-        "report:allure": "allure generate allure-results --clean && allure open"
-      },
-      devDependencies: {
-        "@playwright/test": "latest",
-        "allure-commandline": "latest",
-        "allure-playwright": "latest",
-        typescript: "latest",
-        zod: "latest"
-      }
-    });
-  }
-
-  return toJson({
-    name: toPackageName(config.projectName),
-    version: "0.1.0",
-    private: true,
-    type: "module",
-    scripts: {
-      ...sharedScripts,
-      test: "cypress run",
-      "test:open": "cypress open",
-      "report:allure": "allure generate allure-results --clean && allure open"
-    },
-    devDependencies: {
-      "@shelex/cypress-allure-plugin": "latest",
-      "allure-commandline": "latest",
-      cypress: "latest",
-      typescript: "latest",
-      zod: "latest"
-    }
-  });
-}
-
-function createTsConfig(framework: Framework): string {
-  if (framework === "playwright") {
-    return toJson({
-      compilerOptions: {
-        target: "ES2022",
-        module: "ESNext",
-        moduleResolution: "Bundler",
-        lib: ["ES2022"],
-        strict: true,
-        skipLibCheck: true,
-        types: ["node"],
-        noUncheckedIndexedAccess: true
-      },
-      include: ["playwright.config.ts", "src/**/*.ts", "tests/**/*.ts"]
-    });
-  }
-
-  return toJson({
-    compilerOptions: {
-      target: "ES2022",
-      module: "ESNext",
-      moduleResolution: "Bundler",
-      lib: ["ES2022"],
-      strict: true,
-      skipLibCheck: true,
-      types: ["node", "cypress"],
-      noUncheckedIndexedAccess: true
-    },
-    include: ["cypress.config.ts", "cypress/**/*.ts"]
-  });
-}
-
-function createGitignore(framework: Framework): string {
-  const frameworkIgnores =
-    framework === "playwright"
-      ? "\nplaywright-report\ntest-results\n"
-      : "\ncypress/screenshots\ncypress/videos\n";
-
-  return `node_modules
-allure-results
-allure-report${frameworkIgnores}`;
-}
-
-function createReadme(config: CliConfig): string {
-  const frameworkLabel = config.framework === "playwright" ? "Playwright" : "Cypress";
-  const architectureLabel =
-    config.architecture === "pom" ? "Page Object Model (POM)" : "Feature Driven";
-  const frameworkScripts =
-    config.framework === "playwright"
-      ? [
-          "- \`npm run test\` to run tests",
-          "- \`npm run test:ui\` for Playwright UI mode",
-          "- \`npm run report:html\` to open Playwright HTML report",
-          "- \`npm run report:allure\` to open Allure report"
-        ]
-      : [
-          "- \`npm run test\` to run tests",
-          "- \`npm run test:open\` to open Cypress app",
-          "- \`npm run report:allure\` to open Allure report"
-        ];
-
-  return `# ${config.projectName}
-
-Generated by \`create-qa-app\`.
-
-## Stack
-- Framework: ${frameworkLabel}
-- Architecture: ${architectureLabel}
-- Language: TypeScript
-- Runtime validation: Zod
-- Reporting: Allure
-
-## Getting Started
-1. Install dependencies with your package manager.
-2. Run type checks with \`npm run typecheck\`.
-3. Run your test suite.
-
-## Scripts
-${frameworkScripts.join("\n")}
-
-## Architecture Notes
-- \`pom\` keeps page abstractions separate from tests for long-term maintainability.
-- \`feature\` keeps test assets grouped by business feature for easier ownership.
-`;
-}
-
-function createPlaywrightFiles(architecture: Architecture): TemplateFile[] {
-  const sharedFiles: TemplateFile[] = [
-    {
-      path: "src/config/env.ts",
-      content: `import { z } from "zod";
-
-const envSchema = z.object({
-  BASE_URL: z.string().url().default("https://playwright.dev")
-});
-
-export const env = envSchema.parse(process.env);
-`
-    },
-    {
-      path: "playwright.config.ts",
-      content: `import { defineConfig } from "@playwright/test";
-import { env } from "./src/config/env";
-
-export default defineConfig({
-  testDir: "./tests",
-  fullyParallel: true,
-  reporter: [["line"], ["html", { open: "never" }], ["allure-playwright"]],
-  use: {
-    baseURL: env.BASE_URL,
-    trace: "on-first-retry"
-  }
-});
-`
-    }
-  ];
-
-  if (architecture === "pom") {
-    return [
-      ...sharedFiles,
-      {
-        path: "src/pages/home.page.ts",
-        content: `import { expect, type Page } from "@playwright/test";
-
-export class HomePage {
-  public constructor(private readonly page: Page) {}
-
-  public async goto(): Promise<void> {
-    await this.page.goto("/");
-  }
-
-  public async expectGettingStartedLink(): Promise<void> {
-    await expect(this.page.getByRole("link", { name: "Get started" })).toBeVisible();
-  }
-}
-`
-      },
-      {
-        path: "tests/home.spec.ts",
-        content: `import { test } from "@playwright/test";
-import { HomePage } from "../src/pages/home.page";
-
-test("home smoke test", async ({ page }) => {
-  const homePage = new HomePage(page);
-  await homePage.goto();
-  await homePage.expectGettingStartedLink();
-});
-`
-      }
-    ];
-  }
-
-  return [
-    ...sharedFiles,
-    {
-      path: "tests/home/home.page.ts",
-      content: `import { expect, type Page } from "@playwright/test";
-
-export class HomeFeature {
-  public constructor(private readonly page: Page) {}
-
-  public async visitHome(): Promise<void> {
-    await this.page.goto("/");
-  }
-
-  public async expectGettingStartedLink(): Promise<void> {
-    await expect(this.page.getByRole("link", { name: "Get started" })).toBeVisible();
-  }
-}
-`
-    },
-    {
-      path: "tests/home/home.spec.ts",
-      content: `import { test } from "@playwright/test";
-import { HomeFeature } from "./home.page";
-
-test("home feature smoke test", async ({ page }) => {
-  const homeFeature = new HomeFeature(page);
-  await homeFeature.visitHome();
-  await homeFeature.expectGettingStartedLink();
-});
-`
-    }
-  ];
-}
-
-function createCypressFiles(architecture: Architecture): TemplateFile[] {
-  const sharedFiles: TemplateFile[] = [
-    {
-      path: "cypress/support/env.ts",
-      content: `import { z } from "zod";
-
-const envSchema = z.object({
-  BASE_URL: z.string().url().default("https://example.cypress.io")
-});
-
-export const env = envSchema.parse(process.env);
-`
-    },
-    {
-      path: "cypress.config.ts",
-      content: `import { defineConfig } from "cypress";
-import allureWriter from "@shelex/cypress-allure-plugin/writer";
-import { env } from "./cypress/support/env";
-
-export default defineConfig({
-  video: false,
-  e2e: {
-    baseUrl: env.BASE_URL,
-    specPattern: "cypress/e2e/**/*.cy.ts",
-    supportFile: "cypress/support/e2e.ts",
-    setupNodeEvents(on, config) {
-      allureWriter(on, config);
-      return config;
-    }
-  }
-});
-`
-    },
-    {
-      path: "cypress/support/e2e.ts",
-      content: `import "@shelex/cypress-allure-plugin";
-`
-    }
-  ];
-
-  if (architecture === "pom") {
-    return [
-      ...sharedFiles,
-      {
-        path: "cypress/support/pages/home.page.ts",
-        content: `export class HomePage {
-  public visit(): void {
-    cy.visit("/");
-  }
-
-  public expectTypeLink(): void {
-    cy.contains("type").should("be.visible");
-  }
-}
-`
-      },
-      {
-        path: "cypress/e2e/home.cy.ts",
-        content: `import { HomePage } from "../support/pages/home.page";
-
-describe("home smoke test", () => {
-  it("shows docs links", () => {
-    const homePage = new HomePage();
-    homePage.visit();
-    homePage.expectTypeLink();
-  });
-});
-`
-      }
-    ];
-  }
-
-  return [
-    ...sharedFiles,
-    {
-      path: "cypress/e2e/home/home.fixture.ts",
-      content: `export const homeFeature = {
-  route: "/",
-  expectedLinkText: "type"
-} as const;
-`
-    },
-    {
-      path: "cypress/e2e/home/home.cy.ts",
-      content: `import { homeFeature } from "./home.fixture";
-
-describe("home feature smoke test", () => {
-  it("shows docs links", () => {
-    cy.visit(homeFeature.route);
-    cy.contains(homeFeature.expectedLinkText).should("be.visible");
-  });
-});
-`
-    }
-  ];
-}
-
-export function createTemplateFiles(config: CliConfig): TemplateFile[] {
-  const sharedFiles: TemplateFile[] = [
-    {
-      path: ".gitignore",
-      content: createGitignore(config.framework)
-    },
-    {
-      path: "package.json",
-      content: createPackageJson(config)
-    },
-    {
-      path: "tsconfig.json",
-      content: createTsConfig(config.framework)
-    },
-    {
-      path: "README.md",
-      content: createReadme(config)
-    }
-  ];
-
-  if (config.framework === "playwright") {
-    return [...sharedFiles, ...createPlaywrightFiles(config.architecture)];
-  }
-
-  return [...sharedFiles, ...createCypressFiles(config.architecture)];
 }

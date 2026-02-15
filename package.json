@@ -7,7 +7,8 @@
     "create-qa-app": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "cli/template"
   ],
   "scripts": {
     "build": "tsup",
