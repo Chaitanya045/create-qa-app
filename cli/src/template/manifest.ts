@@ -1,4 +1,4 @@
-import type { Architecture, CliConfig, Framework } from "./schema";
+import type { Architecture, CliConfig, Framework } from "../core/schema";
 
 export type TemplateFile = {
   path: string;

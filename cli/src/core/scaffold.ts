@@ -1,7 +1,7 @@
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CliConfig } from "./schema";
-import { createTemplateFiles } from "./templates";
+import { createTemplateFiles } from "../template/manifest";
 
 export type ScaffoldResult = {
   targetDir: string;

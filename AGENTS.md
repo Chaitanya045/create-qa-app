@@ -9,13 +9,14 @@ This repository builds `create-qa-app`, a CLI that scaffolds maintainable, type-
 - Keep the CLI experience consistent, minimal, and predictable.
 
 ## Code Structure
-- `src/index.ts`: CLI orchestration and UX flow.
-- `src/cli/*`: prompt/loading wrappers.
-- `src/core/schema.ts`: shared typed config contract.
-- `src/core/templates.ts`: all generated file templates.
-- `src/core/scaffold.ts`: filesystem creation logic.
-- `src/core/package-manager.ts`: package manager detection/commands.
-- `src/core/install.ts`: dependency installation runner.
+- `cli/src/index.ts`: top-level CLI entrypoint and command routing.
+- `cli/src/commands/create/*`: create command flow and interactive prompts.
+- `cli/src/cli/*`: prompt/loading wrappers.
+- `cli/src/core/schema.ts`: shared typed config contract.
+- `cli/src/template/*`: template manifests and template resolution logic.
+- `cli/src/core/scaffold.ts`: filesystem creation logic.
+- `cli/src/core/package-manager.ts`: package manager detection/commands.
+- `cli/src/core/install.ts`: dependency installation runner.
 
 ## Implementation Rules
 - Keep template logic deterministic and side-effect free.

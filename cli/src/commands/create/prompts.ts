@@ -1,10 +1,10 @@
-import type { ClackModule } from "./clack";
+import type { ClackModule } from "../../cli/clack";
 import {
   type Architecture,
   cliConfigSchema,
   type CliConfig,
   type Framework
-} from "../core/schema";
+} from "../../core/schema";
 
 const FRAMEWORK_OPTIONS: Array<{ value: Framework; label: string }> = [
   { value: "playwright", label: "Playwright" },

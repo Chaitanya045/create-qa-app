@@ -1,13 +1,13 @@
 import path from "node:path";
-import { loadClack } from "./cli/clack";
-import { promptForConfig } from "./cli/prompts";
-import { installDependencies } from "./core/install";
+import { loadClack } from "../../cli/clack";
+import { promptForConfig } from "./prompts";
+import { installDependencies } from "../../core/install";
 import {
   detectPackageManager,
   getInstallCommand,
   getScriptCommand
-} from "./core/package-manager";
-import { scaffoldProject } from "./core/scaffold";
+} from "../../core/package-manager";
+import { scaffoldProject } from "../../core/scaffold";
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -17,7 +17,7 @@ function getErrorMessage(error: unknown): string {
   return "Unexpected error while creating the project.";
 }
 
-async function main(): Promise<void> {
+export async function runCreateCommand(): Promise<void> {
   const clack = await loadClack();
   clack.intro("create-qa-app");
 
@@ -62,5 +62,3 @@ async function main(): Promise<void> {
 Next steps:
   ${nextSteps.join("\n  ")}`);
 }
-
-void main();

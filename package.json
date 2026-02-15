@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "bun run src/index.ts",
+    "dev": "bun run cli/src/index.ts",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck"
   },
