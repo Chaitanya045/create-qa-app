@@ -1,28 +1,11 @@
 import { spawn } from "node:child_process";
-import type { PackageManager } from "./package-manager";
+import {
+  getInstallCommandParts,
+  getPlaywrightInstallBrowsersCommandParts,
+  type PackageManager
+} from "./package-manager";
 
-function getInstallCommand(packageManager: PackageManager): { command: string; args: string[] } {
-  if (packageManager === "yarn") {
-    return { command: "yarn", args: [] };
-  }
-
-  if (packageManager === "bun") {
-    return { command: "bun", args: ["install"] };
-  }
-
-  if (packageManager === "pnpm") {
-    return { command: "pnpm", args: ["install"] };
-  }
-
-  return { command: "npm", args: ["install"] };
-}
-
-export async function installDependencies(
-  cwd: string,
-  packageManager: PackageManager
-): Promise<void> {
-  const { command, args } = getInstallCommand(packageManager);
-
+async function runCommand(cwd: string, command: string, args: string[]): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const childProcess = spawn(command, args, {
       cwd,
@@ -40,7 +23,23 @@ export async function installDependencies(
         return;
       }
 
-      reject(new Error(`Dependency install failed with exit code ${String(exitCode)}.`));
+      reject(new Error(`Command failed with exit code ${String(exitCode)}: ${command} ${args.join(" ")}`));
     });
   });
+}
+
+export async function installDependencies(
+  cwd: string,
+  packageManager: PackageManager
+): Promise<void> {
+  const installCommandParts = getInstallCommandParts(packageManager);
+  await runCommand(cwd, installCommandParts.command, installCommandParts.args);
+}
+
+export async function installPlaywrightBrowsers(
+  cwd: string,
+  packageManager: PackageManager
+): Promise<void> {
+  const browserInstallCommandParts = getPlaywrightInstallBrowsersCommandParts(packageManager, false);
+  await runCommand(cwd, browserInstallCommandParts.command, browserInstallCommandParts.args);
 }

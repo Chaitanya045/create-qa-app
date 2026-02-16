@@ -26,13 +26,19 @@ This produces `dist/index.js` for the `create-qa-app` executable.
   - Architecture (POM/Feature Driven)
   - Package manager (npm/pnpm/yarn/bun)
   - Runtime validation (Zod: Yes (Recommended) / No)
+  - Playwright-only:
+    - Test directory (default `tests`)
+    - Reporter multi-select (HTML preselected, Allure optional)
+    - GitHub Actions workflow toggle
+    - Install Playwright browsers
   - Install dependencies
 - Generates a starter project with:
   - TypeScript config
   - Test framework setup
-  - Zod-based environment parsing
-  - Allure reporting setup
+  - Zod or non-Zod environment parsing
+  - Optional reporter/workflow setup
   - Starter tests following selected architecture
+  - Runtime-resolved latest dependency versions for Playwright packages
 
 ## Roadmap
 

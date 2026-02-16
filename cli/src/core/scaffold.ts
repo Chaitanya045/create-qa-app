@@ -5,10 +5,15 @@ import { fileURLToPath } from "node:url";
 import type { CliConfig } from "./schema";
 import { createTemplateManifest } from "../template/manifest";
 import { renderTemplateAsset } from "../template/renderer";
+import type { ResolvedVersions } from "./version-resolver";
 
 export type ScaffoldResult = {
   targetDir: string;
   createdFiles: number;
+};
+
+export type ScaffoldOptions = {
+  resolvedVersions?: ResolvedVersions;
 };
 
 function resolveTemplateRoot(): string {
@@ -44,12 +49,18 @@ async function assertTargetDirIsScaffoldable(targetDir: string): Promise<void> {
   }
 }
 
-export async function scaffoldProject(baseDir: string, config: CliConfig): Promise<ScaffoldResult> {
+export async function scaffoldProject(
+  baseDir: string,
+  config: CliConfig,
+  options: ScaffoldOptions = {}
+): Promise<ScaffoldResult> {
   const targetDir = path.resolve(baseDir, config.projectName);
   await assertTargetDirIsScaffoldable(targetDir);
   await mkdir(targetDir, { recursive: true });
 
-  const templateManifest = createTemplateManifest(config);
+  const templateManifest = createTemplateManifest(config, {
+    resolvedVersions: options.resolvedVersions ?? {}
+  });
   const templateRoot = resolveTemplateRoot();
 
   await Promise.all(

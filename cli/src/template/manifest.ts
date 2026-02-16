@@ -1,5 +1,19 @@
-import type { Architecture, CliConfig, Framework } from "../core/schema";
-import { getInstallCommand, getScriptCommand } from "../core/package-manager";
+import path from "node:path";
+import type {
+  Architecture,
+  CliConfig,
+  CypressCliConfig,
+  Framework,
+  PlaywrightCliConfig
+} from "../core/schema";
+import {
+  getBinaryCommand,
+  getInstallCommand,
+  getPlaywrightCommand,
+  getPlaywrightInstallBrowsersCommand,
+  getScriptCommand
+} from "../core/package-manager";
+import type { ResolvedVersions } from "../core/version-resolver";
 
 export type TemplateAsset = {
   source: string;
@@ -11,25 +25,14 @@ export type TemplateManifest = {
   variables: Record<string, string>;
 };
 
+export type TemplateManifestOptions = {
+  resolvedVersions: ResolvedVersions;
+};
+
 const SHARED_ASSETS: TemplateAsset[] = [
   {
     source: "base/common/.gitignore.tpl",
     destination: ".gitignore"
-  }
-];
-
-const PLAYWRIGHT_BASE_ASSETS: TemplateAsset[] = [
-  {
-    source: "frameworks/playwright/tsconfig.json.tpl",
-    destination: "tsconfig.json"
-  },
-  {
-    source: "frameworks/playwright/README.md.tpl",
-    destination: "README.md"
-  },
-  {
-    source: "frameworks/playwright/playwright.config.ts.tpl",
-    destination: "playwright.config.ts"
   }
 ];
 
@@ -52,88 +55,28 @@ const CYPRESS_BASE_ASSETS: TemplateAsset[] = [
   }
 ];
 
-const ARCHITECTURE_ASSETS: Record<Framework, Record<Architecture, TemplateAsset[]>> = {
-  playwright: {
-    pom: [
-      {
-        source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
-        destination: "src/pages/home.page.ts"
-      },
-      {
-        source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
-        destination: "tests/home.spec.ts"
-      }
-    ],
-    feature: [
-      {
-        source: "frameworks/playwright/architectures/feature/tests/home/home.page.ts.tpl",
-        destination: "tests/home/home.page.ts"
-      },
-      {
-        source: "frameworks/playwright/architectures/feature/tests/home/home.spec.ts.tpl",
-        destination: "tests/home/home.spec.ts"
-      }
-    ]
-  },
-  cypress: {
-    pom: [
-      {
-        source: "frameworks/cypress/architectures/pom/cypress/support/pages/home.page.ts.tpl",
-        destination: "cypress/support/pages/home.page.ts"
-      },
-      {
-        source: "frameworks/cypress/architectures/pom/cypress/e2e/home.cy.ts.tpl",
-        destination: "cypress/e2e/home.cy.ts"
-      }
-    ],
-    feature: [
-      {
-        source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.fixture.ts.tpl",
-        destination: "cypress/e2e/home/home.fixture.ts"
-      },
-      {
-        source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.cy.ts.tpl",
-        destination: "cypress/e2e/home/home.cy.ts"
-      }
-    ]
-  }
+const CYPRESS_ARCHITECTURE_ASSETS: Record<Architecture, TemplateAsset[]> = {
+  pom: [
+    {
+      source: "frameworks/cypress/architectures/pom/cypress/support/pages/home.page.ts.tpl",
+      destination: "cypress/support/pages/home.page.ts"
+    },
+    {
+      source: "frameworks/cypress/architectures/pom/cypress/e2e/home.cy.ts.tpl",
+      destination: "cypress/e2e/home.cy.ts"
+    }
+  ],
+  feature: [
+    {
+      source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.fixture.ts.tpl",
+      destination: "cypress/e2e/home/home.fixture.ts"
+    },
+    {
+      source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.cy.ts.tpl",
+      destination: "cypress/e2e/home/home.cy.ts"
+    }
+  ]
 };
-
-function getFrameworkAssets(config: CliConfig): TemplateAsset[] {
-  if (config.framework === "playwright") {
-    return [
-      {
-        source: config.useZod
-          ? "frameworks/playwright/package.json.tpl"
-          : "frameworks/playwright/package.no-zod.json.tpl",
-        destination: "package.json"
-      },
-      {
-        source: config.useZod
-          ? "frameworks/playwright/src/config/env.ts.tpl"
-          : "frameworks/playwright/src/config/env.no-zod.ts.tpl",
-        destination: "src/config/env.ts"
-      },
-      ...PLAYWRIGHT_BASE_ASSETS
-    ];
-  }
-
-  return [
-    {
-      source: config.useZod
-        ? "frameworks/cypress/package.json.tpl"
-        : "frameworks/cypress/package.no-zod.json.tpl",
-      destination: "package.json"
-    },
-    {
-      source: config.useZod
-        ? "frameworks/cypress/cypress/support/env.ts.tpl"
-        : "frameworks/cypress/cypress/support/env.no-zod.ts.tpl",
-      destination: "cypress/support/env.ts"
-    },
-    ...CYPRESS_BASE_ASSETS
-  ];
-}
 
 function toPackageName(projectName: string): string {
   const normalized = projectName
@@ -155,26 +98,247 @@ function getArchitectureLabel(architecture: Architecture): string {
   return architecture === "pom" ? "Page Object Model (POM)" : "Feature Driven";
 }
 
-export function createTemplateManifest(config: CliConfig): TemplateManifest {
-  return {
-    assets: [
-      ...SHARED_ASSETS,
-      ...getFrameworkAssets(config),
-      ...ARCHITECTURE_ASSETS[config.framework][config.architecture]
-    ],
-    variables: {
-      projectName: config.projectName,
-      packageName: toPackageName(config.projectName),
-      frameworkLabel: getFrameworkLabel(config.framework),
-      architectureLabel: getArchitectureLabel(config.architecture),
-      runtimeValidationLabel: config.useZod ? "Zod" : "None",
-      installCommand: getInstallCommand(config.packageManager),
-      typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
-      testCommand: getScriptCommand(config.packageManager, "test"),
-      openCommand: getScriptCommand(config.packageManager, "test:open"),
-      uiCommand: getScriptCommand(config.packageManager, "test:ui"),
-      htmlReportCommand: getScriptCommand(config.packageManager, "report:html"),
-      allureReportCommand: getScriptCommand(config.packageManager, "report:allure")
+function getResolvedVersion(
+  packageName: string,
+  templateManifestOptions: TemplateManifestOptions
+): string {
+  return templateManifestOptions.resolvedVersions[packageName] ?? "latest";
+}
+
+function formatDependencyLine(packageName: string, version: string): string {
+  return `,\n    "${packageName}": "${version}"`;
+}
+
+function formatPlaywrightReporterConfig(config: PlaywrightCliConfig): string {
+  const reporterEntries: string[] = ['["line"]'];
+
+  if (config.playwrightReporters.includes("html")) {
+    reporterEntries.push('["html", { open: "never" }]');
+  }
+
+  if (config.playwrightReporters.includes("allure")) {
+    reporterEntries.push('["allure-playwright"]');
+  }
+
+  return `[${reporterEntries.join(", ")}]`;
+}
+
+function formatCommandList(commands: string[]): string {
+  return commands.map((command) => `- \`${command}\``).join("\n");
+}
+
+function getPlaywrightWorkflowTemplate(config: PlaywrightCliConfig): string {
+  if (config.playwrightReporters.includes("html") && config.playwrightReporters.includes("allure")) {
+    return "frameworks/playwright/.github/workflows/playwright.workflow.html-allure.yml.tpl";
+  }
+
+  if (config.playwrightReporters.includes("allure")) {
+    return "frameworks/playwright/.github/workflows/playwright.workflow.allure.yml.tpl";
+  }
+
+  return "frameworks/playwright/.github/workflows/playwright.workflow.html.yml.tpl";
+}
+
+function getPlaywrightPomPageImportPath(testDirectory: string): string {
+  const fromDirectory = testDirectory.replace(/\\/g, "/");
+  const relativePath = path.posix.relative(fromDirectory, "src/pages/home.page");
+  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+}
+
+function getPlaywrightArchitectureAssets(config: PlaywrightCliConfig): TemplateAsset[] {
+  if (config.architecture === "pom") {
+    return [
+      {
+        source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
+        destination: "src/pages/home.page.ts"
+      },
+      {
+        source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
+        destination: `${config.testDirectory}/home.spec.ts`
+      }
+    ];
+  }
+
+  return [
+    {
+      source: "frameworks/playwright/architectures/feature/tests/home/home.page.ts.tpl",
+      destination: `${config.testDirectory}/home/home.page.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/feature/tests/home/home.spec.ts.tpl",
+      destination: `${config.testDirectory}/home/home.spec.ts`
     }
+  ];
+}
+
+function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
+  const assets: TemplateAsset[] = [
+    {
+      source: "frameworks/playwright/package.json.tpl",
+      destination: "package.json"
+    },
+    {
+      source: "frameworks/playwright/tsconfig.json.tpl",
+      destination: "tsconfig.json"
+    },
+    {
+      source: "frameworks/playwright/README.md.tpl",
+      destination: "README.md"
+    },
+    {
+      source: "frameworks/playwright/playwright.config.ts.tpl",
+      destination: "playwright.config.ts"
+    },
+    {
+      source: config.useZod
+        ? "frameworks/playwright/src/config/env.ts.tpl"
+        : "frameworks/playwright/src/config/env.no-zod.ts.tpl",
+      destination: "src/config/env.ts"
+    },
+    ...getPlaywrightArchitectureAssets(config)
+  ];
+
+  if (config.includePlaywrightWorkflow) {
+    assets.push({
+      source: getPlaywrightWorkflowTemplate(config),
+      destination: ".github/workflows/playwright.yml"
+    });
+  }
+
+  return assets;
+}
+
+function getPlaywrightVariables(
+  config: PlaywrightCliConfig,
+  templateManifestOptions: TemplateManifestOptions
+): Record<string, string> {
+  const hasHtml = config.playwrightReporters.includes("html");
+  const hasAllure = config.playwrightReporters.includes("allure");
+  const htmlReportCommand = getScriptCommand(config.packageManager, "report:html");
+  const allureReportCommand = getScriptCommand(config.packageManager, "report:allure");
+  const reportCommands: string[] = [];
+
+  if (hasHtml) {
+    reportCommands.push(htmlReportCommand);
+  }
+
+  if (hasAllure) {
+    reportCommands.push(allureReportCommand);
+  }
+
+  return {
+    projectName: config.projectName,
+    packageName: toPackageName(config.projectName),
+    frameworkLabel: getFrameworkLabel(config.framework),
+    architectureLabel: getArchitectureLabel(config.architecture),
+    runtimeValidationLabel: config.useZod ? "Zod" : "None",
+    installCommand: getInstallCommand(config.packageManager),
+    typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
+    testCommand: getScriptCommand(config.packageManager, "test"),
+    openCommand: getScriptCommand(config.packageManager, "test:open"),
+    uiCommand: getPlaywrightCommand(config.packageManager, ["test", "--ui"]),
+    htmlReportCommand,
+    allureReportCommand,
+    playwrightReportCommandsList: formatCommandList(reportCommands),
+    playwrightRunTestsCommand: getPlaywrightCommand(config.packageManager, ["test"]),
+    playwrightUiModeCommand: getPlaywrightCommand(config.packageManager, ["test", "--ui"]),
+    playwrightProjectCommand: getPlaywrightCommand(config.packageManager, ["test", "--project=chromium"]),
+    playwrightDebugCommand: getPlaywrightCommand(config.packageManager, ["test", "--debug"]),
+    playwrightCodegenCommand: getPlaywrightCommand(config.packageManager, ["codegen"]),
+    playwrightInstallBrowsersCommand: getPlaywrightInstallBrowsersCommand(config.packageManager, false),
+    playwrightInstallBrowsersWithDepsCommand: getPlaywrightInstallBrowsersCommand(
+      config.packageManager,
+      true
+    ),
+    playwrightWorkflowInstallCommand: getInstallCommand(config.packageManager),
+    playwrightWorkflowTestCommand: getPlaywrightCommand(config.packageManager, ["test"]),
+    playwrightWorkflowAllureGenerateCommand: getBinaryCommand(config.packageManager, "allure", [
+      "generate",
+      "allure-results",
+      "--clean",
+      "-o",
+      "allure-report"
+    ]),
+    playwrightTestDirectory: config.testDirectory,
+    playwrightReporterConfig: formatPlaywrightReporterConfig(config),
+    playwrightSelectedReportersList: formatCommandList(
+      config.playwrightReporters.map((reporter) => (reporter === "html" ? "HTML" : "Allure"))
+    ),
+    playwrightPomPageImportPath: getPlaywrightPomPageImportPath(config.testDirectory),
+    versionPlaywrightTest: getResolvedVersion("@playwright/test", templateManifestOptions),
+    versionTypesNode: getResolvedVersion("@types/node", templateManifestOptions),
+    versionTypescript: getResolvedVersion("typescript", templateManifestOptions),
+    playwrightHtmlScriptLine: hasHtml ? ',\n    "report:html": "playwright show-report"' : "",
+    playwrightZodDependencyLine: config.useZod
+      ? formatDependencyLine("zod", getResolvedVersion("zod", templateManifestOptions))
+      : "",
+    playwrightAllureScriptLine: hasAllure
+      ? ',\n    "report:allure": "allure generate allure-results --clean && allure open"'
+      : "",
+    playwrightAllurePlaywrightDependencyLine: hasAllure
+      ? formatDependencyLine(
+          "allure-playwright",
+          getResolvedVersion("allure-playwright", templateManifestOptions)
+        )
+      : "",
+    playwrightAllureCommandlineDependencyLine: hasAllure
+      ? formatDependencyLine(
+          "allure-commandline",
+          getResolvedVersion("allure-commandline", templateManifestOptions)
+        )
+      : ""
+  };
+}
+
+function getCypressAssets(config: CypressCliConfig): TemplateAsset[] {
+  return [
+    {
+      source: config.useZod
+        ? "frameworks/cypress/package.json.tpl"
+        : "frameworks/cypress/package.no-zod.json.tpl",
+      destination: "package.json"
+    },
+    {
+      source: config.useZod
+        ? "frameworks/cypress/cypress/support/env.ts.tpl"
+        : "frameworks/cypress/cypress/support/env.no-zod.ts.tpl",
+      destination: "cypress/support/env.ts"
+    },
+    ...CYPRESS_BASE_ASSETS,
+    ...CYPRESS_ARCHITECTURE_ASSETS[config.architecture]
+  ];
+}
+
+function getCypressVariables(config: CypressCliConfig): Record<string, string> {
+  return {
+    projectName: config.projectName,
+    packageName: toPackageName(config.projectName),
+    frameworkLabel: getFrameworkLabel(config.framework),
+    architectureLabel: getArchitectureLabel(config.architecture),
+    runtimeValidationLabel: config.useZod ? "Zod" : "None",
+    installCommand: getInstallCommand(config.packageManager),
+    typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
+    testCommand: getScriptCommand(config.packageManager, "test"),
+    openCommand: getScriptCommand(config.packageManager, "test:open"),
+    uiCommand: getScriptCommand(config.packageManager, "test:ui"),
+    htmlReportCommand: getScriptCommand(config.packageManager, "report:html"),
+    allureReportCommand: getScriptCommand(config.packageManager, "report:allure")
+  };
+}
+
+export function createTemplateManifest(
+  config: CliConfig,
+  templateManifestOptions: TemplateManifestOptions
+): TemplateManifest {
+  if (config.framework === "playwright") {
+    return {
+      assets: [...SHARED_ASSETS, ...getPlaywrightAssets(config)],
+      variables: getPlaywrightVariables(config, templateManifestOptions)
+    };
+  }
+
+  return {
+    assets: [...SHARED_ASSETS, ...getCypressAssets(config)],
+    variables: getCypressVariables(config)
   };
 }

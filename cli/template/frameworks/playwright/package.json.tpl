@@ -7,15 +7,11 @@
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed",
-    "report:html": "playwright show-report",
-    "report:allure": "allure generate allure-results --clean && allure open"
+    "test:headed": "playwright test --headed"{{playwrightHtmlScriptLine}}{{playwrightAllureScriptLine}}
   },
   "devDependencies": {
-    "@playwright/test": "latest",
-    "allure-commandline": "latest",
-    "allure-playwright": "latest",
-    "typescript": "latest",
-    "zod": "latest"
+    "@playwright/test": "{{versionPlaywrightTest}}",
+    "@types/node": "{{versionTypesNode}}",
+    "typescript": "{{versionTypescript}}"{{playwrightZodDependencyLine}}{{playwrightAllurePlaywrightDependencyLine}}{{playwrightAllureCommandlineDependencyLine}}
   }
 }
