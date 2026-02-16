@@ -158,7 +158,7 @@ export async function promptForConfig(
     testDirectory = normalizeTestDirectory(testDirectoryInput);
 
     const reporterSelection = await clack.multiselect<PlaywrightReporter>({
-      message: "Select Playwright reporters",
+      message: "Select Playwright reporters (Space to select/unselect, Enter to continue)",
       options: PLAYWRIGHT_REPORTER_OPTIONS,
       initialValues: ["html"],
       required: true
