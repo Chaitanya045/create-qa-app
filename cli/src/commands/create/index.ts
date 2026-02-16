@@ -20,8 +20,11 @@ function getErrorMessage(error: unknown): string {
 export async function runCreateCommand(): Promise<void> {
   const clack = await loadClack();
   clack.intro("create-qa-app");
+  const detectedPackageManager = detectPackageManager(process.cwd());
 
-  const config = await promptForConfig(clack);
+  const config = await promptForConfig(clack, {
+    defaultPackageManager: detectedPackageManager
+  });
 
   if (!config) {
     clack.cancel("Operation cancelled.");
@@ -29,7 +32,6 @@ export async function runCreateCommand(): Promise<void> {
   }
 
   const spinner = clack.spinner();
-  const packageManager = detectPackageManager(process.cwd());
 
   try {
     spinner.start("Scaffolding project...");
@@ -39,8 +41,8 @@ export async function runCreateCommand(): Promise<void> {
     );
 
     if (config.installDeps) {
-      spinner.start(`Installing dependencies using ${packageManager}...`);
-      await installDependencies(scaffoldResult.targetDir, packageManager);
+      spinner.start(`Installing dependencies using ${config.packageManager}...`);
+      await installDependencies(scaffoldResult.targetDir, config.packageManager);
       spinner.stop("Dependencies installed.");
     }
   } catch (error) {
@@ -52,10 +54,10 @@ export async function runCreateCommand(): Promise<void> {
   const nextSteps = [`cd ${config.projectName}`];
 
   if (!config.installDeps) {
-    nextSteps.push(getInstallCommand(packageManager));
+    nextSteps.push(getInstallCommand(config.packageManager));
   }
 
-  nextSteps.push(getScriptCommand(packageManager, "test"));
+  nextSteps.push(getScriptCommand(config.packageManager, "test"));
 
   clack.outro(`Project ready.
 

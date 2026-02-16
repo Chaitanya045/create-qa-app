@@ -5,6 +5,7 @@ import {
   type CliConfig,
   type Framework
 } from "../../core/schema";
+import type { PackageManager } from "../../core/package-manager";
 
 const FRAMEWORK_OPTIONS: Array<{ value: Framework; label: string }> = [
   { value: "playwright", label: "Playwright" },
@@ -15,6 +16,17 @@ const ARCHITECTURE_OPTIONS: Array<{ value: Architecture; label: string }> = [
   { value: "pom", label: "Page Object Model (POM)" },
   { value: "feature", label: "Feature Driven" }
 ];
+
+const PACKAGE_MANAGER_OPTIONS: Array<{ value: PackageManager; label: string }> = [
+  { value: "npm", label: "npm" },
+  { value: "pnpm", label: "pnpm" },
+  { value: "yarn", label: "yarn" },
+  { value: "bun", label: "bun" }
+];
+
+type PromptOptions = {
+  defaultPackageManager: PackageManager;
+};
 
 function validateProjectName(value: string | undefined): string | Error | undefined {
   const trimmedValue = (value ?? "").trim();
@@ -34,7 +46,10 @@ function validateProjectName(value: string | undefined): string | Error | undefi
   return undefined;
 }
 
-export async function promptForConfig(clack: ClackModule): Promise<CliConfig | null> {
+export async function promptForConfig(
+  clack: ClackModule,
+  options: PromptOptions
+): Promise<CliConfig | null> {
   const projectNameInput = await clack.text({
     message: "Project name?",
     placeholder: "my-test-project",
@@ -63,6 +78,16 @@ export async function promptForConfig(clack: ClackModule): Promise<CliConfig | n
     return null;
   }
 
+  const packageManagerInput = await clack.select<PackageManager>({
+    message: "Package manager?",
+    options: PACKAGE_MANAGER_OPTIONS,
+    initialValue: options.defaultPackageManager
+  });
+
+  if (clack.isCancel(packageManagerInput)) {
+    return null;
+  }
+
   const installDepsInput = await clack.confirm({
     message: "Install dependencies?",
     initialValue: true
@@ -76,6 +101,7 @@ export async function promptForConfig(clack: ClackModule): Promise<CliConfig | n
     projectName: projectNameInput.trim(),
     framework: frameworkInput,
     architecture: architectureInput,
+    packageManager: packageManagerInput,
     installDeps: installDepsInput
   });
 

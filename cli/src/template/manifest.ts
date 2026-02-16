@@ -1,4 +1,5 @@
 import type { Architecture, CliConfig, Framework } from "../core/schema";
+import { getInstallCommand, getScriptCommand } from "../core/package-manager";
 
 export type TemplateAsset = {
   source: string;
@@ -146,7 +147,14 @@ export function createTemplateManifest(config: CliConfig): TemplateManifest {
       projectName: config.projectName,
       packageName: toPackageName(config.projectName),
       frameworkLabel: getFrameworkLabel(config.framework),
-      architectureLabel: getArchitectureLabel(config.architecture)
+      architectureLabel: getArchitectureLabel(config.architecture),
+      installCommand: getInstallCommand(config.packageManager),
+      typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
+      testCommand: getScriptCommand(config.packageManager, "test"),
+      openCommand: getScriptCommand(config.packageManager, "test:open"),
+      uiCommand: getScriptCommand(config.packageManager, "test:ui"),
+      htmlReportCommand: getScriptCommand(config.packageManager, "report:html"),
+      allureReportCommand: getScriptCommand(config.packageManager, "report:allure")
     }
   };
 }

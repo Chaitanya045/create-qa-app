@@ -24,6 +24,7 @@ This produces `dist/index.js` for the `create-qa-app` executable.
   - Project name
   - Framework (Playwright/Cypress)
   - Architecture (POM/Feature Driven)
+  - Package manager (npm/pnpm/yarn/bun)
   - Install dependencies
 - Generates a starter project with:
   - TypeScript config
