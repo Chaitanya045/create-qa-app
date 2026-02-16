@@ -9,6 +9,7 @@ export const cliConfigSchema = z.object({
   framework: frameworkSchema,
   architecture: architectureSchema,
   packageManager: packageManagerSchema,
+  useZod: z.boolean(),
   installDeps: z.boolean()
 });
 

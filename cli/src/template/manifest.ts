@@ -18,56 +18,39 @@ const SHARED_ASSETS: TemplateAsset[] = [
   }
 ];
 
-const FRAMEWORK_ASSETS: Record<Framework, TemplateAsset[]> = {
-  playwright: [
-    {
-      source: "frameworks/playwright/package.json.tpl",
-      destination: "package.json"
-    },
-    {
-      source: "frameworks/playwright/tsconfig.json.tpl",
-      destination: "tsconfig.json"
-    },
-    {
-      source: "frameworks/playwright/README.md.tpl",
-      destination: "README.md"
-    },
-    {
-      source: "frameworks/playwright/playwright.config.ts.tpl",
-      destination: "playwright.config.ts"
-    },
-    {
-      source: "frameworks/playwright/src/config/env.ts.tpl",
-      destination: "src/config/env.ts"
-    }
-  ],
-  cypress: [
-    {
-      source: "frameworks/cypress/package.json.tpl",
-      destination: "package.json"
-    },
-    {
-      source: "frameworks/cypress/tsconfig.json.tpl",
-      destination: "tsconfig.json"
-    },
-    {
-      source: "frameworks/cypress/README.md.tpl",
-      destination: "README.md"
-    },
-    {
-      source: "frameworks/cypress/cypress.config.ts.tpl",
-      destination: "cypress.config.ts"
-    },
-    {
-      source: "frameworks/cypress/cypress/support/env.ts.tpl",
-      destination: "cypress/support/env.ts"
-    },
-    {
-      source: "frameworks/cypress/cypress/support/e2e.ts.tpl",
-      destination: "cypress/support/e2e.ts"
-    }
-  ]
-};
+const PLAYWRIGHT_BASE_ASSETS: TemplateAsset[] = [
+  {
+    source: "frameworks/playwright/tsconfig.json.tpl",
+    destination: "tsconfig.json"
+  },
+  {
+    source: "frameworks/playwright/README.md.tpl",
+    destination: "README.md"
+  },
+  {
+    source: "frameworks/playwright/playwright.config.ts.tpl",
+    destination: "playwright.config.ts"
+  }
+];
+
+const CYPRESS_BASE_ASSETS: TemplateAsset[] = [
+  {
+    source: "frameworks/cypress/tsconfig.json.tpl",
+    destination: "tsconfig.json"
+  },
+  {
+    source: "frameworks/cypress/README.md.tpl",
+    destination: "README.md"
+  },
+  {
+    source: "frameworks/cypress/cypress.config.ts.tpl",
+    destination: "cypress.config.ts"
+  },
+  {
+    source: "frameworks/cypress/cypress/support/e2e.ts.tpl",
+    destination: "cypress/support/e2e.ts"
+  }
+];
 
 const ARCHITECTURE_ASSETS: Record<Framework, Record<Architecture, TemplateAsset[]>> = {
   playwright: {
@@ -116,6 +99,42 @@ const ARCHITECTURE_ASSETS: Record<Framework, Record<Architecture, TemplateAsset[
   }
 };
 
+function getFrameworkAssets(config: CliConfig): TemplateAsset[] {
+  if (config.framework === "playwright") {
+    return [
+      {
+        source: config.useZod
+          ? "frameworks/playwright/package.json.tpl"
+          : "frameworks/playwright/package.no-zod.json.tpl",
+        destination: "package.json"
+      },
+      {
+        source: config.useZod
+          ? "frameworks/playwright/src/config/env.ts.tpl"
+          : "frameworks/playwright/src/config/env.no-zod.ts.tpl",
+        destination: "src/config/env.ts"
+      },
+      ...PLAYWRIGHT_BASE_ASSETS
+    ];
+  }
+
+  return [
+    {
+      source: config.useZod
+        ? "frameworks/cypress/package.json.tpl"
+        : "frameworks/cypress/package.no-zod.json.tpl",
+      destination: "package.json"
+    },
+    {
+      source: config.useZod
+        ? "frameworks/cypress/cypress/support/env.ts.tpl"
+        : "frameworks/cypress/cypress/support/env.no-zod.ts.tpl",
+      destination: "cypress/support/env.ts"
+    },
+    ...CYPRESS_BASE_ASSETS
+  ];
+}
+
 function toPackageName(projectName: string): string {
   const normalized = projectName
     .trim()
@@ -140,7 +159,7 @@ export function createTemplateManifest(config: CliConfig): TemplateManifest {
   return {
     assets: [
       ...SHARED_ASSETS,
-      ...FRAMEWORK_ASSETS[config.framework],
+      ...getFrameworkAssets(config),
       ...ARCHITECTURE_ASSETS[config.framework][config.architecture]
     ],
     variables: {
@@ -148,6 +167,7 @@ export function createTemplateManifest(config: CliConfig): TemplateManifest {
       packageName: toPackageName(config.projectName),
       frameworkLabel: getFrameworkLabel(config.framework),
       architectureLabel: getArchitectureLabel(config.architecture),
+      runtimeValidationLabel: config.useZod ? "Zod" : "None",
       installCommand: getInstallCommand(config.packageManager),
       typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
       testCommand: getScriptCommand(config.packageManager, "test"),

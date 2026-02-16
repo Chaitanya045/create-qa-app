@@ -24,6 +24,11 @@ const PACKAGE_MANAGER_OPTIONS: Array<{ value: PackageManager; label: string }> =
   { value: "bun", label: "bun" }
 ];
 
+const ZOD_OPTIONS: Array<{ value: boolean; label: string }> = [
+  { value: true, label: "Yes (Recommended)" },
+  { value: false, label: "No" }
+];
+
 type PromptOptions = {
   defaultPackageManager: PackageManager;
 };
@@ -88,6 +93,16 @@ export async function promptForConfig(
     return null;
   }
 
+  const useZodInput = await clack.select<boolean>({
+    message: "Use Zod for runtime validation?",
+    options: ZOD_OPTIONS,
+    initialValue: true
+  });
+
+  if (clack.isCancel(useZodInput)) {
+    return null;
+  }
+
   const installDepsInput = await clack.confirm({
     message: "Install dependencies?",
     initialValue: true
@@ -102,6 +117,7 @@ export async function promptForConfig(
     framework: frameworkInput,
     architecture: architectureInput,
     packageManager: packageManagerInput,
+    useZod: useZodInput,
     installDeps: installDepsInput
   });
 
