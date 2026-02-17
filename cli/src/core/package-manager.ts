@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
+export type PackageManagerAvailability = Record<PackageManager, boolean>;
 export type CommandParts = {
   command: string;
   args: string[];
@@ -65,6 +67,49 @@ function detectFromLockfile(cwd: string): PackageManager | null {
   }
 
   return null;
+}
+
+function getPackageManagerBinary(packageManager: PackageManager): string {
+  return packageManager;
+}
+
+export function isPackageManagerInstalled(packageManager: PackageManager): boolean {
+  const binary = getPackageManagerBinary(packageManager);
+  const result = spawnSync(binary, ["--version"], {
+    stdio: "ignore",
+    shell: process.platform === "win32"
+  });
+
+  if (result.error) {
+    return false;
+  }
+
+  return result.status === 0;
+}
+
+export function getPackageManagerAvailability(): PackageManagerAvailability {
+  return {
+    npm: isPackageManagerInstalled("npm"),
+    pnpm: isPackageManagerInstalled("pnpm"),
+    yarn: isPackageManagerInstalled("yarn"),
+    bun: isPackageManagerInstalled("bun")
+  };
+}
+
+export function getPackageManagerInstallHelp(packageManager: PackageManager): string {
+  if (packageManager === "pnpm") {
+    return "npm install -g pnpm";
+  }
+
+  if (packageManager === "yarn") {
+    return "npm install -g yarn";
+  }
+
+  if (packageManager === "bun") {
+    return "https://bun.sh/docs/installation";
+  }
+
+  return "Install Node.js (includes npm): https://nodejs.org/en/download";
 }
 
 export function detectPackageManager(cwd: string): PackageManager {

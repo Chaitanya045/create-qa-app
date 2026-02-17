@@ -7,7 +7,12 @@ import {
   type Framework,
   type PlaywrightReporter
 } from "../../core/schema";
-import type { PackageManager } from "../../core/package-manager";
+import {
+  getPackageManagerAvailability,
+  getPackageManagerInstallHelp,
+  type PackageManager,
+  type PackageManagerAvailability
+} from "../../core/package-manager";
 
 const FRAMEWORK_OPTIONS: Array<{ value: Framework; label: string }> = [
   { value: "playwright", label: "Playwright" },
@@ -39,6 +44,29 @@ const PLAYWRIGHT_REPORTER_OPTIONS: Array<{ value: PlaywrightReporter; label: str
 type PromptOptions = {
   defaultPackageManager: PackageManager;
 };
+
+type PackageManagerOption = {
+  value: PackageManager;
+  label: string;
+  hint?: string;
+};
+
+function getPackageManagerOptionsWithStatus(
+  availability: PackageManagerAvailability
+): PackageManagerOption[] {
+  return PACKAGE_MANAGER_OPTIONS.map((packageManagerOption) => ({
+    ...packageManagerOption,
+    hint: availability[packageManagerOption.value] ? "installed" : "not installed"
+  }));
+}
+
+function getInstalledPackageManagerOptions(
+  availability: PackageManagerAvailability
+): PackageManagerOption[] {
+  return getPackageManagerOptionsWithStatus(availability).filter(
+    (packageManagerOption) => availability[packageManagerOption.value]
+  );
+}
 
 function validateProjectName(value: string | undefined): string | Error | undefined {
   const trimmedValue = (value ?? "").trim();
@@ -91,6 +119,7 @@ export async function promptForConfig(
   clack: ClackModule,
   options: PromptOptions
 ): Promise<CliConfig | null> {
+  const packageManagerAvailability = getPackageManagerAvailability();
   const projectNameInput = await clack.text({
     message: "Project name?",
     placeholder: "my-test-project",
@@ -119,9 +148,9 @@ export async function promptForConfig(
     return null;
   }
 
-  const packageManagerInput = await clack.select<PackageManager>({
+  let packageManagerInput = await clack.select<PackageManager>({
     message: "Package manager?",
-    options: PACKAGE_MANAGER_OPTIONS,
+    options: getPackageManagerOptionsWithStatus(packageManagerAvailability),
     initialValue: options.defaultPackageManager
   });
 
@@ -182,13 +211,67 @@ export async function promptForConfig(
     includePlaywrightWorkflow = includePlaywrightWorkflowInput;
   }
 
-  const installDepsInput = await clack.confirm({
+  let installDepsInput = await clack.confirm({
     message: "Install dependencies?",
     initialValue: true
   });
 
   if (clack.isCancel(installDepsInput)) {
     return null;
+  }
+
+  if (installDepsInput && !packageManagerAvailability[packageManagerInput]) {
+    clack.note(
+      `Selected package manager "${packageManagerInput}" is not installed.
+
+Install it globally and rerun:
+  ${getPackageManagerInstallHelp(packageManagerInput)}`,
+      "Package manager unavailable"
+    );
+
+    const installedPackageManagerOptions = getInstalledPackageManagerOptions(packageManagerAvailability);
+
+    if (installedPackageManagerOptions.length === 0) {
+      clack.log.warn(
+        "No supported package managers were detected. Continuing without dependency installation."
+      );
+      installDepsInput = false;
+    } else {
+      const missingPackageManagerAction = await clack.select<"reselect" | "skip">({
+        message: "How would you like to continue?",
+        options: [
+          { value: "reselect", label: "Select another package manager (Recommended)" },
+          { value: "skip", label: "Skip dependency install and finish scaffolding" }
+        ],
+        initialValue: "reselect"
+      });
+
+      if (clack.isCancel(missingPackageManagerAction)) {
+        return null;
+      }
+
+      if (missingPackageManagerAction === "reselect") {
+        const replacementInitialValue =
+          installedPackageManagerOptions.find(
+            (installedPackageManagerOption) =>
+              installedPackageManagerOption.value === options.defaultPackageManager
+          )?.value ?? installedPackageManagerOptions[0]?.value;
+
+        const replacementPackageManagerInput = await clack.select<PackageManager>({
+          message: "Select an installed package manager",
+          options: installedPackageManagerOptions,
+          initialValue: replacementInitialValue
+        });
+
+        if (clack.isCancel(replacementPackageManagerInput)) {
+          return null;
+        }
+
+        packageManagerInput = replacementPackageManagerInput;
+      } else {
+        installDepsInput = false;
+      }
+    }
   }
 
   if (frameworkInput === "playwright") {
