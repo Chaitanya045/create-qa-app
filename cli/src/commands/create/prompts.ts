@@ -119,11 +119,22 @@ function validatePlaywrightTestDirectory(value: string | undefined): string | Er
   return undefined;
 }
 
+function noteSectionHeader(clack: ClackModule, label: string): void {
+  clack.note(`\n${label}\n`, "");
+}
+
 export async function promptForConfig(
   clack: ClackModule,
   options: PromptOptions
 ): Promise<CliConfig | null> {
   const packageManagerAvailability = getPackageManagerAvailability();
+
+  clack.note(
+    `\n${["Project", "Testing", "Reporting", "CI / Tooling"].map((s) => `• ${s}`).join("\n")}\n`,
+    "Setup steps"
+  );
+
+  noteSectionHeader(clack, "Project setup");
   const projectNameInput = await clack.text({
     message: "Project name?",
     placeholder: "my-test-project",
@@ -178,6 +189,7 @@ export async function promptForConfig(
   let useSrcLayout = true;
 
   if (frameworkInput === "playwright") {
+    noteSectionHeader(clack, "Testing setup");
     const testDirectoryInput = await clack.text({
       message: "Where should your end-to-end tests live?",
       placeholder: "tests",
@@ -203,8 +215,9 @@ export async function promptForConfig(
     useSrcLayout = useSrcLayoutInput;
     testDirectory = useSrcLayout ? `src/${normalizedTestDirectory}` : normalizedTestDirectory;
 
+    noteSectionHeader(clack, "Reporting");
     const reporterSelection = await clack.multiselect<PlaywrightReporter>({
-      message: "Select Playwright reporters (Space to select/unselect, Enter to continue)",
+      message: "Select reporters (Space to toggle • Enter to confirm)",
       options: PLAYWRIGHT_REPORTER_OPTIONS,
       initialValues: ["html"],
       required: true
@@ -216,6 +229,7 @@ export async function promptForConfig(
 
     playwrightReporters = reporterSelection;
 
+    noteSectionHeader(clack, "CI / Tooling");
     const includePlaywrightWorkflowInput = await clack.confirm({
       message: "Add GitHub Actions workflow?",
       initialValue: true
