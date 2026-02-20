@@ -121,8 +121,6 @@ export async function runCreateCommand(): Promise<void> {
     nextSteps.push(getScriptCommand(config.packageManager, "test"));
   }
 
-  clack.outro(`Project ready.
-
-Next steps:
-  ${nextSteps.join("\n  ")}`);
+  clack.outro("🎉 Project ready!");
+  clack.note(`\n${nextSteps.map((step) => `- ${step}`).join("\n")}\n`, "Next steps");
 }

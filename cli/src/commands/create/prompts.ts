@@ -123,18 +123,24 @@ function noteSectionHeader(clack: ClackModule, label: string): void {
   clack.note(`\n${label}\n`, "");
 }
 
+function noteProgress(clack: ClackModule, current: number, total: number, label: string): void {
+  clack.note(`[${String(current)}/${String(total)}] ${label}`, "");
+}
+
+async function transitionSection(clack: ClackModule, message: string): Promise<void> {
+  const spinner = clack.spinner();
+  spinner.start(message);
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  spinner.stop("");
+}
+
 export async function promptForConfig(
   clack: ClackModule,
   options: PromptOptions
 ): Promise<CliConfig | null> {
   const packageManagerAvailability = getPackageManagerAvailability();
 
-  clack.note(
-    `\n${["Project", "Testing", "Reporting", "CI / Tooling"].map((s) => `• ${s}`).join("\n")}\n`,
-    "Setup steps"
-  );
-
-  noteSectionHeader(clack, "Project setup");
+  noteProgress(clack, 1, 4, "🧰 Project setup");
   const projectNameInput = await clack.text({
     message: "Project name?",
     placeholder: "my-test-project",
@@ -189,7 +195,9 @@ export async function promptForConfig(
   let useSrcLayout = true;
 
   if (frameworkInput === "playwright") {
-    noteSectionHeader(clack, "Testing setup");
+    clack.log.success("✅ Project setup complete");
+    await transitionSection(clack, "⏳ Preparing testing setup...");
+    noteProgress(clack, 2, 4, "🧪 Testing setup");
     const testDirectoryInput = await clack.text({
       message: "Where should your end-to-end tests live?",
       placeholder: "tests",
@@ -215,7 +223,9 @@ export async function promptForConfig(
     useSrcLayout = useSrcLayoutInput;
     testDirectory = useSrcLayout ? `src/${normalizedTestDirectory}` : normalizedTestDirectory;
 
-    noteSectionHeader(clack, "Reporting");
+    clack.log.success("✅ Testing setup complete");
+    await transitionSection(clack, "⏳ Preparing reporting...");
+    noteProgress(clack, 3, 4, "📊 Reporting");
     const reporterSelection = await clack.multiselect<PlaywrightReporter>({
       message: "Select reporters (Space to toggle • Enter to confirm)",
       options: PLAYWRIGHT_REPORTER_OPTIONS,
@@ -229,7 +239,9 @@ export async function promptForConfig(
 
     playwrightReporters = reporterSelection;
 
-    noteSectionHeader(clack, "CI / Tooling");
+    clack.log.success("✅ Reporting complete");
+    await transitionSection(clack, "⏳ Preparing CI / tooling...");
+    noteProgress(clack, 4, 4, "⚙️ CI / Tooling");
     const includePlaywrightWorkflowInput = await clack.confirm({
       message: "Add GitHub Actions workflow?",
       initialValue: true
@@ -240,6 +252,10 @@ export async function promptForConfig(
     }
 
     includePlaywrightWorkflow = includePlaywrightWorkflowInput;
+  }
+
+  if (frameworkInput === "cypress") {
+    clack.log.success("✅ Project setup complete");
   }
 
   let installDepsInput = await clack.confirm({
