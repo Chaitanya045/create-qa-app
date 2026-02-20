@@ -180,6 +180,18 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
       destination: "package.json"
     },
     {
+      source: "frameworks/playwright/eslint.config.js.tpl",
+      destination: "eslint.config.js"
+    },
+    {
+      source: "frameworks/playwright/.prettierrc.json.tpl",
+      destination: ".prettierrc.json"
+    },
+    {
+      source: "frameworks/playwright/.prettierignore.tpl",
+      destination: ".prettierignore"
+    },
+    {
       source: "frameworks/playwright/tsconfig.json.tpl",
       destination: "tsconfig.json"
     },
@@ -239,6 +251,10 @@ function getPlaywrightVariables(
     installCommand: getInstallCommand(config.packageManager),
     typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
     testCommand: getScriptCommand(config.packageManager, "test"),
+    lintCommand: getScriptCommand(config.packageManager, "lint"),
+    lintFixCommand: getScriptCommand(config.packageManager, "lint:fix"),
+    formatCommand: getScriptCommand(config.packageManager, "format"),
+    formatCheckCommand: getScriptCommand(config.packageManager, "format:check"),
     openCommand: getScriptCommand(config.packageManager, "test:open"),
     uiCommand: getPlaywrightCommand(config.packageManager, ["test", "--ui"]),
     htmlReportCommand,
@@ -273,6 +289,15 @@ function getPlaywrightVariables(
       config.testDirectory,
       `${pagesModuleRoot}/home.page`
     ),
+    versionEslint: getResolvedVersion("eslint", templateManifestOptions),
+    versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),
+    versionEslintConfigPrettier: getResolvedVersion("eslint-config-prettier", templateManifestOptions),
+    versionEslintPluginPlaywright: getResolvedVersion(
+      "eslint-plugin-playwright",
+      templateManifestOptions
+    ),
+    versionPrettier: getResolvedVersion("prettier", templateManifestOptions),
+    versionTypescriptEslint: getResolvedVersion("typescript-eslint", templateManifestOptions),
     versionPlaywrightTest: getResolvedVersion("@playwright/test", templateManifestOptions),
     versionTypesNode: getResolvedVersion("@types/node", templateManifestOptions),
     versionTypescript: getResolvedVersion("typescript", templateManifestOptions),

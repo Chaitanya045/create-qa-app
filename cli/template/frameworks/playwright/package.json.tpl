@@ -7,11 +7,21 @@
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"{{playwrightHtmlScriptLine}}{{playwrightAllureScriptLine}}
+    "test:headed": "playwright test --headed",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"{{playwrightHtmlScriptLine}}{{playwrightAllureScriptLine}}
   },
   "devDependencies": {
     "@playwright/test": "{{versionPlaywrightTest}}",
     "@types/node": "{{versionTypesNode}}",
-    "typescript": "{{versionTypescript}}"{{playwrightZodDependencyLine}}{{playwrightAllurePlaywrightDependencyLine}}{{playwrightAllureCommandlineDependencyLine}}
+    "@eslint/js": "{{versionEslintJs}}",
+    "eslint": "{{versionEslint}}",
+    "eslint-config-prettier": "{{versionEslintConfigPrettier}}",
+    "eslint-plugin-playwright": "{{versionEslintPluginPlaywright}}",
+    "prettier": "{{versionPrettier}}",
+    "typescript": "{{versionTypescript}}",
+    "typescript-eslint": "{{versionTypescriptEslint}}"{{playwrightZodDependencyLine}}{{playwrightAllurePlaywrightDependencyLine}}{{playwrightAllureCommandlineDependencyLine}}
   }
 }

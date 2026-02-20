@@ -23,6 +23,14 @@ function getErrorMessage(error: unknown): string {
 
 function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] {
   const dependencies = ["@playwright/test", "@types/node", "typescript"];
+  dependencies.push(
+    "eslint",
+    "@eslint/js",
+    "typescript-eslint",
+    "eslint-plugin-playwright",
+    "eslint-config-prettier",
+    "prettier"
+  );
 
   if (config.useZod) {
     dependencies.push("zod");
