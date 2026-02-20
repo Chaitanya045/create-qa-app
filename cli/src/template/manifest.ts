@@ -180,6 +180,10 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
       destination: "package.json"
     },
     {
+      source: "frameworks/playwright/.husky/pre-commit.tpl",
+      destination: ".husky/pre-commit"
+    },
+    {
       source: "frameworks/playwright/eslint.config.js.tpl",
       destination: "eslint.config.js"
     },
@@ -296,6 +300,8 @@ function getPlaywrightVariables(
       "eslint-plugin-playwright",
       templateManifestOptions
     ),
+    versionHusky: getResolvedVersion("husky", templateManifestOptions),
+    versionLintStaged: getResolvedVersion("lint-staged", templateManifestOptions),
     versionPrettier: getResolvedVersion("prettier", templateManifestOptions),
     versionTypescriptEslint: getResolvedVersion("typescript-eslint", templateManifestOptions),
     versionPlaywrightTest: getResolvedVersion("@playwright/test", templateManifestOptions),

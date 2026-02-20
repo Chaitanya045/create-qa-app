@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { CliConfig } from "./schema";
@@ -74,6 +74,10 @@ export async function scaffoldProject(
 
       await mkdir(path.dirname(absolutePath), { recursive: true });
       await writeFile(absolutePath, renderedContent, "utf8");
+
+      if (templateAsset.destination.startsWith(".husky/")) {
+        await chmod(absolutePath, 0o755);
+      }
     })
   );
 

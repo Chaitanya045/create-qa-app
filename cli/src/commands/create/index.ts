@@ -29,7 +29,9 @@ function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] 
     "typescript-eslint",
     "eslint-plugin-playwright",
     "eslint-config-prettier",
-    "prettier"
+    "prettier",
+    "husky",
+    "lint-staged"
   );
 
   if (config.useZod) {

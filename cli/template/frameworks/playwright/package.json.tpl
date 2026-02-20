@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "husky || true",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
@@ -13,6 +14,13 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check"{{playwrightHtmlScriptLine}}{{playwrightAllureScriptLine}}
   },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,cjs}": [
+      "prettier --write --ignore-unknown",
+      "eslint --fix --max-warnings=0"
+    ],
+    "*.{json,md,yml,yaml}": ["prettier --write --ignore-unknown"]
+  },
   "devDependencies": {
     "@playwright/test": "{{versionPlaywrightTest}}",
     "@types/node": "{{versionTypesNode}}",
@@ -20,6 +28,8 @@
     "eslint": "{{versionEslint}}",
     "eslint-config-prettier": "{{versionEslintConfigPrettier}}",
     "eslint-plugin-playwright": "{{versionEslintPluginPlaywright}}",
+    "husky": "{{versionHusky}}",
+    "lint-staged": "{{versionLintStaged}}",
     "prettier": "{{versionPrettier}}",
     "typescript": "{{versionTypescript}}",
     "typescript-eslint": "{{versionTypescriptEslint}}"{{playwrightZodDependencyLine}}{{playwrightAllurePlaywrightDependencyLine}}{{playwrightAllureCommandlineDependencyLine}}
