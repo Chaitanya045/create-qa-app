@@ -9,5 +9,11 @@
     "types": ["node"],
     "noUncheckedIndexedAccess": true
   },
-  "include": ["playwright.config.ts", "src/**/*.ts", "{{playwrightTestDirectory}}/**/*.ts"]
+  "include": [
+    "playwright.config.ts",
+    "src/**/*.ts",
+    "config/**/*.ts",
+    "pages/**/*.ts",
+    "{{playwrightTestDirectory}}/**/*.ts"
+  ]
 }

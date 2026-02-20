@@ -107,6 +107,10 @@ function validatePlaywrightTestDirectory(value: string | undefined): string | Er
     return "Enter a valid test directory path.";
   }
 
+  if (normalizedValue === "src" || normalizedValue.startsWith("src/")) {
+    return 'Enter a folder name without the leading "src/" (for example: "tests").';
+  }
+
   const pathSegments = normalizedValue.split("/");
   if (pathSegments.includes("..")) {
     return "Parent directory segments are not allowed.";
@@ -171,6 +175,7 @@ export async function promptForConfig(
   let testDirectory = "tests";
   let includePlaywrightWorkflow = false;
   let playwrightReporters: PlaywrightReporter[] = ["html"];
+  let useSrcLayout = true;
 
   if (frameworkInput === "playwright") {
     const testDirectoryInput = await clack.text({
@@ -184,7 +189,19 @@ export async function promptForConfig(
       return null;
     }
 
-    testDirectory = normalizeTestDirectory(testDirectoryInput);
+    const normalizedTestDirectory = normalizeTestDirectory(testDirectoryInput);
+
+    const useSrcLayoutInput = await clack.confirm({
+      message: "Keep everything under src/?",
+      initialValue: true
+    });
+
+    if (clack.isCancel(useSrcLayoutInput)) {
+      return null;
+    }
+
+    useSrcLayout = useSrcLayoutInput;
+    testDirectory = useSrcLayout ? `src/${normalizedTestDirectory}` : normalizedTestDirectory;
 
     const reporterSelection = await clack.multiselect<PlaywrightReporter>({
       message: "Select Playwright reporters (Space to select/unselect, Enter to continue)",
@@ -294,6 +311,7 @@ Install it globally and rerun:
       useZod: useZodInput,
       installDeps: installDepsInput,
       testDirectory,
+      useSrcLayout,
       includePlaywrightWorkflow,
       playwrightReporters,
       installPlaywrightBrowsers: installPlaywrightBrowsersInput

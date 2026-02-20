@@ -1,5 +1,5 @@
 import { defineConfig } from "@playwright/test";
-import { env } from "./src/config/env";
+import { env } from "{{playwrightEnvImportPath}}";
 
 export default defineConfig({
   testDir: "./{{playwrightTestDirectory}}",

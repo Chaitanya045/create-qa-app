@@ -139,18 +139,19 @@ function getPlaywrightWorkflowTemplate(config: PlaywrightCliConfig): string {
   return "frameworks/playwright/.github/workflows/playwright.workflow.html.yml.tpl";
 }
 
-function getPlaywrightPomPageImportPath(testDirectory: string): string {
+function getPlaywrightPomPageImportPath(testDirectory: string, pageModulePath: string): string {
   const fromDirectory = testDirectory.replace(/\\/g, "/");
-  const relativePath = path.posix.relative(fromDirectory, "src/pages/home.page");
+  const relativePath = path.posix.relative(fromDirectory, pageModulePath);
   return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
 }
 
 function getPlaywrightArchitectureAssets(config: PlaywrightCliConfig): TemplateAsset[] {
   if (config.architecture === "pom") {
+    const pagesDestinationRoot = config.useSrcLayout ? "src/pages" : "pages";
     return [
       {
         source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
-        destination: "src/pages/home.page.ts"
+        destination: `${pagesDestinationRoot}/home.page.ts`
       },
       {
         source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
@@ -172,6 +173,7 @@ function getPlaywrightArchitectureAssets(config: PlaywrightCliConfig): TemplateA
 }
 
 function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
+  const configDestinationRoot = config.useSrcLayout ? "src/config" : "config";
   const assets: TemplateAsset[] = [
     {
       source: "frameworks/playwright/package.json.tpl",
@@ -193,7 +195,7 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
       source: config.useZod
         ? "frameworks/playwright/src/config/env.ts.tpl"
         : "frameworks/playwright/src/config/env.no-zod.ts.tpl",
-      destination: "src/config/env.ts"
+      destination: `${configDestinationRoot}/env.ts`
     },
     ...getPlaywrightArchitectureAssets(config)
   ];
@@ -225,6 +227,8 @@ function getPlaywrightVariables(
   if (hasAllure) {
     reportCommands.push(allureReportCommand);
   }
+
+  const pagesModuleRoot = config.useSrcLayout ? "src/pages" : "pages";
 
   return {
     projectName: config.projectName,
@@ -264,7 +268,11 @@ function getPlaywrightVariables(
     playwrightSelectedReportersList: formatCommandList(
       config.playwrightReporters.map((reporter) => (reporter === "html" ? "HTML" : "Allure"))
     ),
-    playwrightPomPageImportPath: getPlaywrightPomPageImportPath(config.testDirectory),
+    playwrightEnvImportPath: config.useSrcLayout ? "./src/config/env" : "./config/env",
+    playwrightPomPageImportPath: getPlaywrightPomPageImportPath(
+      config.testDirectory,
+      `${pagesModuleRoot}/home.page`
+    ),
     versionPlaywrightTest: getResolvedVersion("@playwright/test", templateManifestOptions),
     versionTypesNode: getResolvedVersion("@types/node", templateManifestOptions),
     versionTypescript: getResolvedVersion("typescript", templateManifestOptions),

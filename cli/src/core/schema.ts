@@ -16,6 +16,7 @@ const baseCliConfigSchema = z.object({
 const playwrightCliConfigSchema = baseCliConfigSchema.extend({
   framework: z.literal("playwright"),
   testDirectory: z.string().min(1),
+  useSrcLayout: z.boolean(),
   includePlaywrightWorkflow: z.boolean(),
   playwrightReporters: z.array(playwrightReporterSchema).min(1),
   installPlaywrightBrowsers: z.boolean()
