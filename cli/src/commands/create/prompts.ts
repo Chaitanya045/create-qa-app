@@ -130,7 +130,10 @@ function noteSectionHeader(clack: ClackModule, label: string): void {
 }
 
 function noteProgress(clack: ClackModule, current: number, total: number, label: string): void {
-  clack.note(`[${String(current)}/${String(total)}] ${label}`, "");
+  clack.box(`[${String(current)}/${String(total)}] ${label}`, "", {
+    width: "auto",
+    contentPadding: 1
+  });
 }
 
 async function transitionSection(clack: ClackModule, message: string): Promise<void> {
@@ -273,7 +276,7 @@ export async function promptForConfig(
     // Skip CI tooling for minimal POM; no workflow by default
     if (!(architectureInput === "pom" && pomTemplate === "minimal")) {
       await transitionSection(clack, "⏳ Preparing CI / tooling...");
-      noteProgress(clack, 4, totalSteps, "⚙️ CI / Tooling");
+      noteProgress(clack, 4, totalSteps, "🔧 CI / Tooling");
       const includePlaywrightWorkflowInput = await clack.confirm({
         message: "Add GitHub Actions workflow?",
         initialValue: true
