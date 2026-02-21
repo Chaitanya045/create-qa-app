@@ -4,9 +4,9 @@ import { env } from "{{playwrightEnvImportPath}}";
 export default defineConfig({
   testDir: "./{{playwrightTestDirectory}}",
   fullyParallel: true,
-  reporter: {{playwrightReporterConfig}},{{playwrightGlobalSetupLine}}
+  reporter: {{playwrightReporterConfig}},
   use: {
     baseURL: env.BASE_URL,
-    trace: "on-first-retry"{{playwrightStorageStateLine}}{{playwrightUserAgentLine}}{{playwrightLocaleLine}}
+    trace: "on-first-retry"{{playwrightUserAgentLine}}{{playwrightLocaleLine}}
   }
 });

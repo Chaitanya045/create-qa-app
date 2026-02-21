@@ -17,7 +17,6 @@
     "fixtures/**/*.ts",
     "utils/**/*.ts",
     "data/**/*.ts",
-    "storage-setup/**/*.ts",
     "types/**/*.ts",
     "{{playwrightTestDirectory}}/**/*.ts"
   ]

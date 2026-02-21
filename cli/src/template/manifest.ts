@@ -150,7 +150,6 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
   const fixturesDestinationRoot = config.useSrcLayout ? "src/fixtures" : "fixtures";
   const utilsDestinationRoot = config.useSrcLayout ? "src/utils" : "utils";
   const dataDestinationRoot = config.useSrcLayout ? "src/data" : "data";
-  const storageSetupDestinationRoot = config.useSrcLayout ? "src/storage-setup" : "storage-setup";
   const typesDestinationRoot = config.useSrcLayout ? "src/types" : "types";
 
   return [
@@ -173,10 +172,6 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
     {
       source: "frameworks/playwright/architectures/pom/src/data/test-data.ts.tpl",
       destination: `${dataDestinationRoot}/test-data.ts`
-    },
-    {
-      source: "frameworks/playwright/architectures/pom/src/storage-setup/global-setup.ts.tpl",
-      destination: `${storageSetupDestinationRoot}/global-setup.ts`
     },
     {
       source: config.useZod
@@ -306,7 +301,6 @@ function getPlaywrightVariables(
   const utilsModuleRoot = config.useSrcLayout ? "src/utils" : "utils";
   const dataModuleRoot = config.useSrcLayout ? "src/data" : "data";
   const configModuleRoot = config.useSrcLayout ? "src/config" : "config";
-  const storageSetupModuleRoot = config.useSrcLayout ? "./src/storage-setup" : "./storage-setup";
   const typesModuleRoot = config.useSrcLayout ? "src/types" : "types";
 
   const pomPageModulePath =
@@ -316,16 +310,6 @@ function getPlaywrightVariables(
 
   const pomLoginPageModulePath = `${pagesModuleRoot}/login.page`;
   const pomSecurePageModulePath = `${pagesModuleRoot}/secure.page`;
-
-  const playwrightGlobalSetupLine =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `\n  globalSetup: "${storageSetupModuleRoot}/global-setup.ts",`
-      : "";
-
-  const playwrightStorageStateLine =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `,\n    storageState: ".auth/storageState.json"`
-      : "";
 
   const storageUserAgent =
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -337,17 +321,8 @@ function getPlaywrightVariables(
       ? `,\n    userAgent:\n      ${storageUserAgentJson}`
       : "";
 
-  const playwrightUserAgentContextOption =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `,\n    userAgent:\n      ${storageUserAgentJson}`
-      : "";
 
   const playwrightLocaleLine =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `,\n    locale: ${storageLocaleJson}`
-      : "";
-
-  const playwrightLocaleContextOption =
     config.architecture === "pom" && config.pomTemplate === "advanced"
       ? `,\n    locale: ${storageLocaleJson}`
       : "";
@@ -411,14 +386,6 @@ function getPlaywrightVariables(
       fixturesModuleRoot,
       pomSecurePageModulePath
     ),
-    playwrightPomLoginPageImportPathFromStorageSetup: getPlaywrightPomPageImportPath(
-      storageSetupModuleRoot.replace(/^\.\//, ""),
-      pomLoginPageModulePath
-    ),
-    playwrightPomSecurePageImportPathFromStorageSetup: getPlaywrightPomPageImportPath(
-      storageSetupModuleRoot.replace(/^\.\//, ""),
-      pomSecurePageModulePath
-    ),
     playwrightPomAuthTypesImportPathFromPages: getPlaywrightPomPageImportPath(
       pagesModuleRoot,
       `${typesModuleRoot}/auth`
@@ -435,12 +402,8 @@ function getPlaywrightVariables(
       pagesModuleRoot,
       `${configModuleRoot}/constants`
     ),
-    playwrightGlobalSetupLine,
-    playwrightStorageStateLine,
     playwrightUserAgentLine,
-    playwrightUserAgentContextOption,
     playwrightLocaleLine,
-    playwrightLocaleContextOption,
     versionEslint: getResolvedVersion("eslint", templateManifestOptions),
     versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),
     versionEslintConfigPrettier: getResolvedVersion("eslint-config-prettier", templateManifestOptions),
