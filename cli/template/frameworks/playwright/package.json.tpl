@@ -19,7 +19,9 @@
       "prettier --write --ignore-unknown",
       "eslint --fix --max-warnings=0"
     ],
-    "*.{json,md,yml,yaml}": ["prettier --write --ignore-unknown"]
+    "*.{json,md,yml,yaml}": [
+      "prettier --write --ignore-unknown"
+    ]
   },
   "devDependencies": {
     "@playwright/test": "{{versionPlaywrightTest}}",

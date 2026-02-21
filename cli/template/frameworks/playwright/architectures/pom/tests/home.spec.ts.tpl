@@ -1,8 +1,8 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { HomePage } from "{{playwrightPomPageImportPath}}";
 
 test("home smoke test", async ({ page }) => {
   const homePage = new HomePage(page);
   await homePage.goto();
-  await homePage.expectGettingStartedLink();
+  await expect(homePage.formAuthenticationLink()).toBeVisible();
 });

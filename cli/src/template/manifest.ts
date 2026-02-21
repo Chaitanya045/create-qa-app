@@ -319,7 +319,7 @@ function getPlaywrightVariables(
 
   const playwrightGlobalSetupLine =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `  globalSetup: "${storageSetupModuleRoot}/global-setup.ts",`
+      ? `\n  globalSetup: "${storageSetupModuleRoot}/global-setup.ts",`
       : "";
 
   const playwrightStorageStateLine =
@@ -334,12 +334,12 @@ function getPlaywrightVariables(
 
   const playwrightUserAgentLine =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `,\n    userAgent: ${storageUserAgentJson}`
+      ? `,\n    userAgent:\n      ${storageUserAgentJson}`
       : "";
 
   const playwrightUserAgentContextOption =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `, userAgent: ${storageUserAgentJson}`
+      ? `,\n    userAgent:\n      ${storageUserAgentJson}`
       : "";
 
   const playwrightLocaleLine =
@@ -349,7 +349,7 @@ function getPlaywrightVariables(
 
   const playwrightLocaleContextOption =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `, locale: ${storageLocaleJson}`
+      ? `,\n    locale: ${storageLocaleJson}`
       : "";
 
   return {

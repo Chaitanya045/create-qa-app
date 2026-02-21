@@ -15,7 +15,7 @@ export class LoginPage {
   }
 
   private submitButton(): Locator {
-    return this.page.locator('button[type=\"submit\"]');
+    return this.page.locator('button[type="submit"]');
   }
 
   public flashMessage(): Locator {
@@ -37,4 +37,3 @@ export class LoginPage {
     await this.login({ username: env.USERNAME, password: env.PASSWORD });
   }
 }
-

@@ -26,4 +26,3 @@ export class SecurePage {
     await expect(this.flashMessage()).toContainText(testData.expectedLoginSuccessMessage);
   }
 }
-

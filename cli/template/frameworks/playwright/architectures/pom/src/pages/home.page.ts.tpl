@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { type Locator, type Page } from "@playwright/test";
 
 export class HomePage {
   public constructor(private readonly page: Page) {}
@@ -7,7 +7,7 @@ export class HomePage {
     await this.page.goto("/");
   }
 
-  public async expectGettingStartedLink(): Promise<void> {
-    await expect(this.page.getByRole("link", { name: "Get started" })).toBeVisible();
+  public formAuthenticationLink(): Locator {
+    return this.page.getByRole("link", { name: "Form Authentication", exact: true });
   }
 }
