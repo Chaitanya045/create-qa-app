@@ -175,8 +175,8 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
       destination: `${dataDestinationRoot}/test-data.ts`
     },
     {
-      source: "frameworks/playwright/architectures/pom/src/storage-setup/auth.setup.ts.tpl",
-      destination: `${storageSetupDestinationRoot}/auth.setup.ts`
+      source: "frameworks/playwright/architectures/pom/src/storage-setup/global-setup.ts.tpl",
+      destination: `${storageSetupDestinationRoot}/global-setup.ts`
     },
     {
       source: config.useZod
@@ -317,9 +317,39 @@ function getPlaywrightVariables(
   const pomLoginPageModulePath = `${pagesModuleRoot}/login.page`;
   const pomSecurePageModulePath = `${pagesModuleRoot}/secure.page`;
 
-  const playwrightProjectsConfigBlock =
+  const playwrightGlobalSetupLine =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `,\n  projects: [\n    {\n      name: "setup",\n      testDir: "${storageSetupModuleRoot}",\n      testMatch: /.*\\\\.setup\\\\.ts/,\n      use: {\n        browserName: "chromium"\n      }\n    },\n    {\n      name: "chromium",\n      testDir: "./${config.testDirectory}",\n      dependencies: ["setup"],\n      use: {\n        browserName: "chromium",\n        storageState: ".auth/storageState.json"\n      }\n    }\n  ]`
+      ? `  globalSetup: "${storageSetupModuleRoot}/global-setup.ts",`
+      : "";
+
+  const playwrightStorageStateLine =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `,\n    storageState: ".auth/storageState.json"`
+      : "";
+
+  const storageUserAgent =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  const storageUserAgentJson = JSON.stringify(storageUserAgent);
+  const storageLocaleJson = JSON.stringify("en-US");
+
+  const playwrightUserAgentLine =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `,\n    userAgent: ${storageUserAgentJson}`
+      : "";
+
+  const playwrightUserAgentContextOption =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `, userAgent: ${storageUserAgentJson}`
+      : "";
+
+  const playwrightLocaleLine =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `,\n    locale: ${storageLocaleJson}`
+      : "";
+
+  const playwrightLocaleContextOption =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `, locale: ${storageLocaleJson}`
       : "";
 
   return {
@@ -405,7 +435,12 @@ function getPlaywrightVariables(
       pagesModuleRoot,
       `${configModuleRoot}/constants`
     ),
-    playwrightProjectsConfigBlock,
+    playwrightGlobalSetupLine,
+    playwrightStorageStateLine,
+    playwrightUserAgentLine,
+    playwrightUserAgentContextOption,
+    playwrightLocaleLine,
+    playwrightLocaleContextOption,
     versionEslint: getResolvedVersion("eslint", templateManifestOptions),
     versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),
     versionEslintConfigPrettier: getResolvedVersion("eslint-config-prettier", templateManifestOptions),

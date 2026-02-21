@@ -10,7 +10,7 @@ export class SecurePage {
   }
 
   public header(): Locator {
-    return this.page.getByRole("heading", { name: "Secure Area" });
+    return this.page.getByRole("heading", { name: "Secure Area", level: 2, exact: true });
   }
 
   public flashMessage(): Locator {

@@ -5,8 +5,9 @@ export default defineConfig({
   testDir: "./{{playwrightTestDirectory}}",
   fullyParallel: true,
   reporter: {{playwrightReporterConfig}},
+{{playwrightGlobalSetupLine}}
   use: {
     baseURL: env.BASE_URL,
-    trace: "on-first-retry"
-  }{{playwrightProjectsConfigBlock}}
+    trace: "on-first-retry"{{playwrightStorageStateLine}}{{playwrightUserAgentLine}}{{playwrightLocaleLine}}
+  }
 });
