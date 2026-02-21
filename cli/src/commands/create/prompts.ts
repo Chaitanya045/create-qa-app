@@ -5,6 +5,7 @@ import {
   cliConfigSchema,
   type CliConfig,
   type Framework,
+  type PlaywrightPomTemplate,
   type PlaywrightReporter
 } from "../../core/schema";
 import {
@@ -39,6 +40,11 @@ const ZOD_OPTIONS: Array<{ value: boolean; label: string }> = [
 const PLAYWRIGHT_REPORTER_OPTIONS: Array<{ value: PlaywrightReporter; label: string }> = [
   { value: "html", label: "HTML" },
   { value: "allure", label: "Allure" }
+];
+
+const PLAYWRIGHT_POM_TEMPLATE_OPTIONS: Array<{ value: PlaywrightPomTemplate; label: string }> = [
+  { value: "minimal", label: "Minimal" },
+  { value: "advanced", label: "Advanced" }
 ];
 
 type PromptOptions = {
@@ -167,6 +173,22 @@ export async function promptForConfig(
 
   if (clack.isCancel(architectureInput)) {
     return null;
+  }
+
+  let pomTemplate: PlaywrightPomTemplate = "minimal";
+
+  if (frameworkInput === "playwright" && architectureInput === "pom") {
+    const pomTemplateInput = await clack.select<PlaywrightPomTemplate>({
+      message: "Template?",
+      options: PLAYWRIGHT_POM_TEMPLATE_OPTIONS,
+      initialValue: "minimal"
+    });
+
+    if (clack.isCancel(pomTemplateInput)) {
+      return null;
+    }
+
+    pomTemplate = pomTemplateInput;
   }
 
   let packageManagerInput = await clack.select<PackageManager>({
@@ -342,6 +364,7 @@ Install it globally and rerun:
       installDeps: installDepsInput,
       testDirectory,
       useSrcLayout,
+      pomTemplate,
       includePlaywrightWorkflow,
       playwrightReporters,
       installPlaywrightBrowsers: installPlaywrightBrowsersInput

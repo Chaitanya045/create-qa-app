@@ -145,8 +145,42 @@ function getPlaywrightPomPageImportPath(testDirectory: string, pageModulePath: s
   return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
 }
 
+function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAsset[] {
+  const pagesDestinationRoot = config.useSrcLayout ? "src/pages" : "pages";
+  const fixturesDestinationRoot = config.useSrcLayout ? "src/fixtures" : "fixtures";
+  const utilsDestinationRoot = config.useSrcLayout ? "src/utils" : "utils";
+  const dataDestinationRoot = config.useSrcLayout ? "src/data" : "data";
+
+  return [
+    {
+      source: "frameworks/playwright/architectures/pom/src/pages/example.page.ts.tpl",
+      destination: `${pagesDestinationRoot}/example.page.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/src/fixtures/test.fixture.ts.tpl",
+      destination: `${fixturesDestinationRoot}/test.fixture.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/src/utils/helpers.ts.tpl",
+      destination: `${utilsDestinationRoot}/helpers.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/src/data/test-data.ts.tpl",
+      destination: `${dataDestinationRoot}/test-data.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/tests/example.spec.ts.tpl",
+      destination: `${config.testDirectory}/example.spec.ts`
+    }
+  ];
+}
+
 function getPlaywrightArchitectureAssets(config: PlaywrightCliConfig): TemplateAsset[] {
   if (config.architecture === "pom") {
+    if (config.pomTemplate === "advanced") {
+      return getPlaywrightPomAdvancedAssets(config);
+    }
+
     const pagesDestinationRoot = config.useSrcLayout ? "src/pages" : "pages";
     return [
       {
@@ -216,6 +250,13 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
     ...getPlaywrightArchitectureAssets(config)
   ];
 
+  if (config.architecture === "pom" && config.pomTemplate === "advanced") {
+    assets.push({
+      source: "frameworks/playwright/src/config/constants.ts.tpl",
+      destination: `${configDestinationRoot}/constants.ts`
+    });
+  }
+
   if (config.includePlaywrightWorkflow) {
     assets.push({
       source: getPlaywrightWorkflowTemplate(config),
@@ -245,6 +286,15 @@ function getPlaywrightVariables(
   }
 
   const pagesModuleRoot = config.useSrcLayout ? "src/pages" : "pages";
+  const fixturesModuleRoot = config.useSrcLayout ? "src/fixtures" : "fixtures";
+  const utilsModuleRoot = config.useSrcLayout ? "src/utils" : "utils";
+  const dataModuleRoot = config.useSrcLayout ? "src/data" : "data";
+  const configModuleRoot = config.useSrcLayout ? "src/config" : "config";
+
+  const pomPageModulePath =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `${pagesModuleRoot}/example.page`
+      : `${pagesModuleRoot}/home.page`;
 
   return {
     projectName: config.projectName,
@@ -291,7 +341,27 @@ function getPlaywrightVariables(
     playwrightEnvImportPath: config.useSrcLayout ? "./src/config/env" : "./config/env",
     playwrightPomPageImportPath: getPlaywrightPomPageImportPath(
       config.testDirectory,
-      `${pagesModuleRoot}/home.page`
+      pomPageModulePath
+    ),
+    playwrightPomFixtureImportPath: getPlaywrightPomPageImportPath(
+      config.testDirectory,
+      `${fixturesModuleRoot}/test.fixture`
+    ),
+    playwrightPomPageImportPathFromFixtures: getPlaywrightPomPageImportPath(
+      fixturesModuleRoot,
+      pomPageModulePath
+    ),
+    playwrightPomHelpersImportPathFromPages: getPlaywrightPomPageImportPath(
+      pagesModuleRoot,
+      `${utilsModuleRoot}/helpers`
+    ),
+    playwrightPomTestDataImportPathFromPages: getPlaywrightPomPageImportPath(
+      pagesModuleRoot,
+      `${dataModuleRoot}/test-data`
+    ),
+    playwrightPomConstantsImportPathFromPages: getPlaywrightPomPageImportPath(
+      pagesModuleRoot,
+      `${configModuleRoot}/constants`
     ),
     versionEslint: getResolvedVersion("eslint", templateManifestOptions),
     versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),

@@ -14,6 +14,9 @@
     "src/**/*.ts",
     "config/**/*.ts",
     "pages/**/*.ts",
+    "fixtures/**/*.ts",
+    "utils/**/*.ts",
+    "data/**/*.ts",
     "{{playwrightTestDirectory}}/**/*.ts"
   ]
 }
