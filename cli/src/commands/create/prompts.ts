@@ -146,7 +146,6 @@ export async function promptForConfig(
 ): Promise<CliConfig | null> {
   const packageManagerAvailability = getPackageManagerAvailability();
 
-  noteProgress(clack, 1, 4, "🧰 Project setup");
   const projectNameInput = await clack.text({
     message: "Project name?",
     placeholder: "my-test-project",
@@ -191,6 +190,12 @@ export async function promptForConfig(
     pomTemplate = pomTemplateInput;
   }
 
+  const isMinimalPom =
+    frameworkInput === "playwright" && architectureInput === "pom" && pomTemplate === "minimal";
+  const totalSteps =
+    frameworkInput === "playwright" ? (isMinimalPom ? 2 : 4) : 1;
+
+  noteProgress(clack, 1, totalSteps, "🧰 Project setup");
   let packageManagerInput = await clack.select<PackageManager>({
     message: "Package manager?",
     options: getPackageManagerOptionsWithStatus(packageManagerAvailability),
@@ -219,7 +224,7 @@ export async function promptForConfig(
   if (frameworkInput === "playwright") {
     clack.log.success("✅ Project setup complete");
     await transitionSection(clack, "⏳ Preparing testing setup...");
-    noteProgress(clack, 2, 4, "🧪 Testing setup");
+    noteProgress(clack, 2, totalSteps, "🧪 Testing setup");
     const testDirectoryInput = await clack.text({
       message: "Where should your end-to-end tests live?",
       placeholder: "tests",
@@ -249,7 +254,7 @@ export async function promptForConfig(
     // Skip report selection for minimal POM; use default HTML only
     if (!(architectureInput === "pom" && pomTemplate === "minimal")) {
       await transitionSection(clack, "⏳ Preparing reporting...");
-      noteProgress(clack, 3, 4, "📊 Reporting");
+      noteProgress(clack, 3, totalSteps, "📊 Reporting");
       const reporterSelection = await clack.multiselect<PlaywrightReporter>({
         message: "Select reporters (Space to toggle • Enter to confirm)",
         options: PLAYWRIGHT_REPORTER_OPTIONS,
@@ -268,7 +273,7 @@ export async function promptForConfig(
     // Skip CI tooling for minimal POM; no workflow by default
     if (!(architectureInput === "pom" && pomTemplate === "minimal")) {
       await transitionSection(clack, "⏳ Preparing CI / tooling...");
-      noteProgress(clack, 4, 4, "⚙️ CI / Tooling");
+      noteProgress(clack, 4, totalSteps, "⚙️ CI / Tooling");
       const includePlaywrightWorkflowInput = await clack.confirm({
         message: "Add GitHub Actions workflow?",
         initialValue: true
