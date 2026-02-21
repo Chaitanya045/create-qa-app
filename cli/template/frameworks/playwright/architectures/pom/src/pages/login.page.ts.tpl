@@ -4,33 +4,31 @@ import { ROUTES } from "../config/constants";
 import type { AuthUser } from "{{playwrightPomAuthTypesImportPathFromPages}}";
 
 export class LoginPage {
-  public constructor(private readonly page: Page) {}
+  private readonly page: Page;
 
-  private usernameInput(): Locator {
-    return this.page.locator("#username");
-  }
+  readonly usernameInput: Locator;
+  readonly passwordInput: Locator;
+  readonly submitButton: Locator;
+  readonly flashMessage: Locator;
 
-  private passwordInput(): Locator {
-    return this.page.locator("#password");
-  }
+  public constructor(page: Page) {
+    this.page = page;
 
-  private submitButton(): Locator {
-    return this.page.locator('button[type="submit"]');
-  }
-
-  public flashMessage(): Locator {
-    return this.page.locator("#flash");
+    this.usernameInput = page.locator("#username");
+    this.passwordInput = page.locator("#password");
+    this.submitButton = page.locator('button[type="submit"]');
+    this.flashMessage = page.locator("#flash");
   }
 
   public async goto(): Promise<void> {
     await this.page.goto(ROUTES.login);
-    await expect(this.usernameInput()).toBeVisible();
+    await expect(this.usernameInput).toBeVisible();
   }
 
   public async login(user: AuthUser): Promise<void> {
-    await this.usernameInput().fill(user.username);
-    await this.passwordInput().fill(user.password);
-    await this.submitButton().click();
+    await this.usernameInput.fill(user.username);
+    await this.passwordInput.fill(user.password);
+    await this.submitButton.click();
   }
 
   public async loginWithEnv(): Promise<void> {

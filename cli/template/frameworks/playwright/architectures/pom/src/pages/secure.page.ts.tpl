@@ -3,26 +3,26 @@ import { ROUTES } from "../config/constants";
 import { testData } from "../data/test-data";
 
 export class SecurePage {
-  public constructor(private readonly page: Page) {}
+  private readonly page: Page;
+
+  readonly header: Locator;
+  readonly flashMessage: Locator;
+  readonly logoutButton: Locator;
+
+  public constructor(page: Page) {
+    this.page = page;
+
+    this.header = page.getByRole("heading", { name: "Secure Area", level: 2, exact: true });
+    this.flashMessage = page.locator("#flash");
+    this.logoutButton = page.getByRole("link", { name: /logout/i });
+  }
 
   public async goto(): Promise<void> {
     await this.page.goto(ROUTES.secure);
   }
 
-  public header(): Locator {
-    return this.page.getByRole("heading", { name: "Secure Area", level: 2, exact: true });
-  }
-
-  public flashMessage(): Locator {
-    return this.page.locator("#flash");
-  }
-
-  public logoutButton(): Locator {
-    return this.page.getByRole("link", { name: /logout/i });
-  }
-
   public async expectLoggedIn(): Promise<void> {
-    await expect(this.header()).toBeVisible();
-    await expect(this.flashMessage()).toContainText(testData.expectedLoginSuccessMessage);
+    await expect(this.header).toBeVisible();
+    await expect(this.flashMessage).toContainText(testData.expectedLoginSuccessMessage);
   }
 }
