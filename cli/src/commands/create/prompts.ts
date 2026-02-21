@@ -34,7 +34,7 @@ const PACKAGE_MANAGER_OPTIONS: Array<{ value: PackageManager; label: string }> =
 
 const ZOD_OPTIONS: Array<{ value: boolean; label: string }> = [
   { value: true, label: "Yes (Recommended)" },
-  { value: false, label: "No" }
+  { value: false, label: "No (Keep setup simpler)" }
 ];
 
 const PLAYWRIGHT_REPORTER_OPTIONS: Array<{ value: PlaywrightReporter; label: string }> = [
