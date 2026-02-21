@@ -212,7 +212,7 @@ export async function promptForConfig(
   const useZodInput = await clack.select<boolean>({
     message: "Use Zod for runtime validation?",
     options: ZOD_OPTIONS,
-    initialValue: true
+    initialValue: isMinimalPom ? false : true
   });
 
   if (clack.isCancel(useZodInput)) {
