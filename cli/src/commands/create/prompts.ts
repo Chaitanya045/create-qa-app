@@ -246,34 +246,40 @@ export async function promptForConfig(
     testDirectory = useSrcLayout ? `src/${normalizedTestDirectory}` : normalizedTestDirectory;
 
     clack.log.success("✅ Testing setup complete");
-    await transitionSection(clack, "⏳ Preparing reporting...");
-    noteProgress(clack, 3, 4, "📊 Reporting");
-    const reporterSelection = await clack.multiselect<PlaywrightReporter>({
-      message: "Select reporters (Space to toggle • Enter to confirm)",
-      options: PLAYWRIGHT_REPORTER_OPTIONS,
-      initialValues: ["html"],
-      required: true
-    });
+    // Skip report selection for minimal POM; use default HTML only
+    if (!(architectureInput === "pom" && pomTemplate === "minimal")) {
+      await transitionSection(clack, "⏳ Preparing reporting...");
+      noteProgress(clack, 3, 4, "📊 Reporting");
+      const reporterSelection = await clack.multiselect<PlaywrightReporter>({
+        message: "Select reporters (Space to toggle • Enter to confirm)",
+        options: PLAYWRIGHT_REPORTER_OPTIONS,
+        initialValues: ["html"],
+        required: true
+      });
 
-    if (clack.isCancel(reporterSelection)) {
-      return null;
+      if (clack.isCancel(reporterSelection)) {
+        return null;
+      }
+
+      playwrightReporters = reporterSelection;
+
+      clack.log.success("✅ Reporting complete");
     }
+    // Skip CI tooling for minimal POM; no workflow by default
+    if (!(architectureInput === "pom" && pomTemplate === "minimal")) {
+      await transitionSection(clack, "⏳ Preparing CI / tooling...");
+      noteProgress(clack, 4, 4, "⚙️ CI / Tooling");
+      const includePlaywrightWorkflowInput = await clack.confirm({
+        message: "Add GitHub Actions workflow?",
+        initialValue: true
+      });
 
-    playwrightReporters = reporterSelection;
+      if (clack.isCancel(includePlaywrightWorkflowInput)) {
+        return null;
+      }
 
-    clack.log.success("✅ Reporting complete");
-    await transitionSection(clack, "⏳ Preparing CI / tooling...");
-    noteProgress(clack, 4, 4, "⚙️ CI / Tooling");
-    const includePlaywrightWorkflowInput = await clack.confirm({
-      message: "Add GitHub Actions workflow?",
-      initialValue: true
-    });
-
-    if (clack.isCancel(includePlaywrightWorkflowInput)) {
-      return null;
+      includePlaywrightWorkflow = includePlaywrightWorkflowInput;
     }
-
-    includePlaywrightWorkflow = includePlaywrightWorkflowInput;
   }
 
   if (frameworkInput === "cypress") {
