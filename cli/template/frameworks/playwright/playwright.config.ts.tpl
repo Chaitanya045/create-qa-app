@@ -8,5 +8,5 @@ export default defineConfig({
   use: {
     baseURL: env.BASE_URL,
     trace: "on-first-retry"
-  }
+  }{{playwrightProjectsConfigBlock}}
 });

@@ -5,7 +5,7 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist/**", "playwright-report/**", "allure-results/**", "allure-report/**"]
+    ignores: [".auth/**", "dist/**", "playwright-report/**", "allure-results/**", "allure-report/**"]
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

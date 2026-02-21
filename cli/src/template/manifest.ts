@@ -150,11 +150,17 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
   const fixturesDestinationRoot = config.useSrcLayout ? "src/fixtures" : "fixtures";
   const utilsDestinationRoot = config.useSrcLayout ? "src/utils" : "utils";
   const dataDestinationRoot = config.useSrcLayout ? "src/data" : "data";
+  const storageSetupDestinationRoot = config.useSrcLayout ? "src/storage-setup" : "storage-setup";
+  const typesDestinationRoot = config.useSrcLayout ? "src/types" : "types";
 
   return [
     {
-      source: "frameworks/playwright/architectures/pom/src/pages/example.page.ts.tpl",
-      destination: `${pagesDestinationRoot}/example.page.ts`
+      source: "frameworks/playwright/architectures/pom/src/pages/login.page.ts.tpl",
+      destination: `${pagesDestinationRoot}/login.page.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/src/pages/secure.page.ts.tpl",
+      destination: `${pagesDestinationRoot}/secure.page.ts`
     },
     {
       source: "frameworks/playwright/architectures/pom/src/fixtures/test.fixture.ts.tpl",
@@ -169,8 +175,18 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
       destination: `${dataDestinationRoot}/test-data.ts`
     },
     {
-      source: "frameworks/playwright/architectures/pom/tests/example.spec.ts.tpl",
-      destination: `${config.testDirectory}/example.spec.ts`
+      source: "frameworks/playwright/architectures/pom/src/storage-setup/auth.setup.ts.tpl",
+      destination: `${storageSetupDestinationRoot}/auth.setup.ts`
+    },
+    {
+      source: config.useZod
+        ? "frameworks/playwright/architectures/pom/src/types/auth.ts.tpl"
+        : "frameworks/playwright/architectures/pom/src/types/auth.no-zod.ts.tpl",
+      destination: `${typesDestinationRoot}/auth.ts`
+    },
+    {
+      source: "frameworks/playwright/architectures/pom/tests/login.spec.ts.tpl",
+      destination: `${config.testDirectory}/login.spec.ts`
     }
   ];
 }
@@ -290,11 +306,21 @@ function getPlaywrightVariables(
   const utilsModuleRoot = config.useSrcLayout ? "src/utils" : "utils";
   const dataModuleRoot = config.useSrcLayout ? "src/data" : "data";
   const configModuleRoot = config.useSrcLayout ? "src/config" : "config";
+  const storageSetupModuleRoot = config.useSrcLayout ? "./src/storage-setup" : "./storage-setup";
+  const typesModuleRoot = config.useSrcLayout ? "src/types" : "types";
 
   const pomPageModulePath =
     config.architecture === "pom" && config.pomTemplate === "advanced"
-      ? `${pagesModuleRoot}/example.page`
+      ? `${pagesModuleRoot}/login.page`
       : `${pagesModuleRoot}/home.page`;
+
+  const pomLoginPageModulePath = `${pagesModuleRoot}/login.page`;
+  const pomSecurePageModulePath = `${pagesModuleRoot}/secure.page`;
+
+  const playwrightProjectsConfigBlock =
+    config.architecture === "pom" && config.pomTemplate === "advanced"
+      ? `,\n  projects: [\n    {\n      name: "setup",\n      testDir: "${storageSetupModuleRoot}",\n      testMatch: /.*\\\\.setup\\\\.ts/,\n      use: {\n        browserName: "chromium"\n      }\n    },\n    {\n      name: "chromium",\n      testDir: "./${config.testDirectory}",\n      dependencies: ["setup"],\n      use: {\n        browserName: "chromium",\n        storageState: ".auth/storageState.json"\n      }\n    }\n  ]`
+      : "";
 
   return {
     projectName: config.projectName,
@@ -347,9 +373,25 @@ function getPlaywrightVariables(
       config.testDirectory,
       `${fixturesModuleRoot}/test.fixture`
     ),
-    playwrightPomPageImportPathFromFixtures: getPlaywrightPomPageImportPath(
+    playwrightPomLoginPageImportPathFromFixtures: getPlaywrightPomPageImportPath(
       fixturesModuleRoot,
-      pomPageModulePath
+      pomLoginPageModulePath
+    ),
+    playwrightPomSecurePageImportPathFromFixtures: getPlaywrightPomPageImportPath(
+      fixturesModuleRoot,
+      pomSecurePageModulePath
+    ),
+    playwrightPomLoginPageImportPathFromStorageSetup: getPlaywrightPomPageImportPath(
+      storageSetupModuleRoot.replace(/^\.\//, ""),
+      pomLoginPageModulePath
+    ),
+    playwrightPomSecurePageImportPathFromStorageSetup: getPlaywrightPomPageImportPath(
+      storageSetupModuleRoot.replace(/^\.\//, ""),
+      pomSecurePageModulePath
+    ),
+    playwrightPomAuthTypesImportPathFromPages: getPlaywrightPomPageImportPath(
+      pagesModuleRoot,
+      `${typesModuleRoot}/auth`
     ),
     playwrightPomHelpersImportPathFromPages: getPlaywrightPomPageImportPath(
       pagesModuleRoot,
@@ -363,6 +405,7 @@ function getPlaywrightVariables(
       pagesModuleRoot,
       `${configModuleRoot}/constants`
     ),
+    playwrightProjectsConfigBlock,
     versionEslint: getResolvedVersion("eslint", templateManifestOptions),
     versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),
     versionEslintConfigPrettier: getResolvedVersion("eslint-config-prettier", templateManifestOptions),

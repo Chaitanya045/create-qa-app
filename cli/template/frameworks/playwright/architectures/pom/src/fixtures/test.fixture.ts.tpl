@@ -1,13 +1,18 @@
 import { test as base, expect } from "@playwright/test";
-import { ExamplePage } from "{{playwrightPomPageImportPathFromFixtures}}";
+import { LoginPage } from "{{playwrightPomLoginPageImportPathFromFixtures}}";
+import { SecurePage } from "{{playwrightPomSecurePageImportPathFromFixtures}}";
 
 type Fixtures = {
-  examplePage: ExamplePage;
+  loginPage: LoginPage;
+  securePage: SecurePage;
 };
 
 export const test = base.extend<Fixtures>({
-  examplePage: async ({ page }, use) => {
-    await use(new ExamplePage(page));
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+  securePage: async ({ page }, use) => {
+    await use(new SecurePage(page));
   }
 });
 

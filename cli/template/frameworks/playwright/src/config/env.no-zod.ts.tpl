@@ -1,4 +1,6 @@
-const DEFAULT_BASE_URL = "https://playwright.dev";
+const DEFAULT_BASE_URL = "https://the-internet.herokuapp.com";
+const DEFAULT_USERNAME = "tomsmith";
+const DEFAULT_PASSWORD = "SuperSecretPassword!";
 
 function parseBaseUrl(value: string | undefined): string {
   if (!value) {
@@ -14,5 +16,9 @@ function parseBaseUrl(value: string | undefined): string {
 }
 
 export const env = {
-  BASE_URL: parseBaseUrl(process.env.BASE_URL)
+  BASE_URL: parseBaseUrl(process.env.BASE_URL),
+  USERNAME: (process.env.USERNAME ?? "").trim() || DEFAULT_USERNAME,
+  PASSWORD: (process.env.PASSWORD ?? "").trim() || DEFAULT_PASSWORD
 } as const;
+
+export type Env = typeof env;
