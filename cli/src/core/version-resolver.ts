@@ -18,7 +18,9 @@ async function resolveLatestVersion(packageName: string): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error(`Registry lookup failed for ${packageName} with HTTP ${String(response.status)}.`);
+    throw new Error(
+      `Registry lookup failed for ${packageName} with HTTP ${String(response.status)}.`
+    );
   }
 
   const payload = (await response.json()) as RegistryLatestResponse;

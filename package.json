@@ -14,7 +14,11 @@
     "build": "tsup",
     "dev": "bun run cli/src/index.ts",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck"
+    "lint": "bunx eslint .",
+    "lint:fix": "bunx eslint . --fix",
+    "format": "bunx prettier --write .",
+    "format:check": "bunx prettier --check .",
+    "check": "bun run typecheck && bun run lint && bun run format:check"
   },
   "engines": {
     "node": ">=18.18.0"
@@ -24,8 +28,13 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.0",
     "@types/node": "^25.2.3",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.8.0",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.0.0"
   }
 }

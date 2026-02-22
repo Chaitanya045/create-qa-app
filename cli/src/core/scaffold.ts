@@ -37,7 +37,9 @@ async function assertTargetDirIsScaffoldable(targetDir: string): Promise<void> {
   try {
     const entries = await readdir(targetDir);
     if (entries.length > 0) {
-      throw new Error(`Target directory "${path.basename(targetDir)}" already exists and is not empty.`);
+      throw new Error(
+        `Target directory "${path.basename(targetDir)}" already exists and is not empty.`
+      );
     }
   } catch (error) {
     const typedError = error as NodeJS.ErrnoException;

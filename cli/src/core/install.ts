@@ -23,7 +23,9 @@ async function runCommand(cwd: string, command: string, args: string[]): Promise
         return;
       }
 
-      reject(new Error(`Command failed with exit code ${String(exitCode)}: ${command} ${args.join(" ")}`));
+      reject(
+        new Error(`Command failed with exit code ${String(exitCode)}: ${command} ${args.join(" ")}`)
+      );
     });
   });
 }
@@ -40,6 +42,9 @@ export async function installPlaywrightBrowsers(
   cwd: string,
   packageManager: PackageManager
 ): Promise<void> {
-  const browserInstallCommandParts = getPlaywrightInstallBrowsersCommandParts(packageManager, false);
+  const browserInstallCommandParts = getPlaywrightInstallBrowsersCommandParts(
+    packageManager,
+    false
+  );
   await runCommand(cwd, browserInstallCommandParts.command, browserInstallCommandParts.args);
 }

@@ -19,7 +19,9 @@ function substituteTemplateVariables(
     const value = variables[variableName];
 
     if (value === undefined) {
-      throw new Error(`Missing template variable "${variableName}" while rendering "${sourceFile}".`);
+      throw new Error(
+        `Missing template variable "${variableName}" while rendering "${sourceFile}".`
+      );
     }
 
     return value;

@@ -86,7 +86,11 @@ function validateProjectName(value: string | undefined): string | Error | undefi
 }
 
 function normalizeTestDirectory(value: string): string {
-  return value.trim().replace(/\\/g, "/").replace(/^\.\/+/, "").replace(/\/+$/, "");
+  return value
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\.\/+/, "")
+    .replace(/\/+$/, "");
 }
 
 function validatePlaywrightTestDirectory(value: string | undefined): string | Error | undefined {
@@ -116,10 +120,6 @@ function validatePlaywrightTestDirectory(value: string | undefined): string | Er
   }
 
   return undefined;
-}
-
-function noteSectionHeader(clack: ClackModule, label: string): void {
-  clack.note(`\n${label}\n`, "");
 }
 
 function noteProgress(clack: ClackModule, current: number, total: number, label: string): void {
@@ -286,7 +286,9 @@ Install it globally and rerun:
       "Package manager unavailable"
     );
 
-    const installedPackageManagerOptions = getInstalledPackageManagerOptions(packageManagerAvailability);
+    const installedPackageManagerOptions = getInstalledPackageManagerOptions(
+      packageManagerAvailability
+    );
 
     if (installedPackageManagerOptions.length === 0) {
       clack.log.warn(

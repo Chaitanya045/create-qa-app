@@ -46,7 +46,10 @@ async function main(): Promise<void> {
         playwrightReporters: ["html"],
         installPlaywrightBrowsers: false
       },
-      commands: [["bun", "install"], ["bun", "run", "typecheck"]]
+      commands: [
+        ["bun", "install"],
+        ["bun", "run", "typecheck"]
+      ]
     },
     {
       name: "playwright-pom-advanced",
@@ -64,13 +67,15 @@ async function main(): Promise<void> {
         playwrightReporters: ["html"],
         installPlaywrightBrowsers: false
       },
-      commands: [["bun", "install"], ["bun", "run", "typecheck"]]
+      commands: [
+        ["bun", "install"],
+        ["bun", "run", "typecheck"]
+      ]
     }
   ];
 
   for (const smokeCase of cases) {
     const result = await scaffoldProject(workspaceRoot, smokeCase.config);
-    // eslint-disable-next-line no-console
     console.log(`\n[smoke] ${smokeCase.name}: ${result.createdFiles} files -> ${result.targetDir}`);
 
     for (const command of smokeCase.commands) {

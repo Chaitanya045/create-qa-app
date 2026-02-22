@@ -80,7 +80,10 @@ function formatCommandList(commands: string[]): string {
 }
 
 function getPlaywrightWorkflowTemplate(config: PlaywrightCliConfig): string {
-  if (config.playwrightReporters.includes("html") && config.playwrightReporters.includes("allure")) {
+  if (
+    config.playwrightReporters.includes("html") &&
+    config.playwrightReporters.includes("allure")
+  ) {
     return "frameworks/playwright/.github/workflows/playwright.workflow.html-allure.yml.tpl";
   }
 
@@ -256,15 +259,10 @@ function getPlaywrightVariables(
   const storageLocaleJson = JSON.stringify("en-US");
 
   const playwrightUserAgentLine =
-    config.pomTemplate === "advanced"
-      ? `,\n    userAgent:\n      ${storageUserAgentJson}`
-      : "";
-
+    config.pomTemplate === "advanced" ? `,\n    userAgent:\n      ${storageUserAgentJson}` : "";
 
   const playwrightLocaleLine =
-    config.pomTemplate === "advanced"
-      ? `,\n    locale: ${storageLocaleJson}`
-      : "";
+    config.pomTemplate === "advanced" ? `,\n    locale: ${storageLocaleJson}` : "";
 
   return {
     projectName: config.projectName,
@@ -286,10 +284,16 @@ function getPlaywrightVariables(
     playwrightReportCommandsList: formatCommandList(reportCommands),
     playwrightRunTestsCommand: getPlaywrightCommand(config.packageManager, ["test"]),
     playwrightUiModeCommand: getPlaywrightCommand(config.packageManager, ["test", "--ui"]),
-    playwrightProjectCommand: getPlaywrightCommand(config.packageManager, ["test", "--project=chromium"]),
+    playwrightProjectCommand: getPlaywrightCommand(config.packageManager, [
+      "test",
+      "--project=chromium"
+    ]),
     playwrightDebugCommand: getPlaywrightCommand(config.packageManager, ["test", "--debug"]),
     playwrightCodegenCommand: getPlaywrightCommand(config.packageManager, ["codegen"]),
-    playwrightInstallBrowsersCommand: getPlaywrightInstallBrowsersCommand(config.packageManager, false),
+    playwrightInstallBrowsersCommand: getPlaywrightInstallBrowsersCommand(
+      config.packageManager,
+      false
+    ),
     playwrightInstallBrowsersWithDepsCommand: getPlaywrightInstallBrowsersCommand(
       config.packageManager,
       true
@@ -345,7 +349,10 @@ function getPlaywrightVariables(
     playwrightLocaleLine,
     versionEslint: getResolvedVersion("eslint", templateManifestOptions),
     versionEslintJs: getResolvedVersion("@eslint/js", templateManifestOptions),
-    versionEslintConfigPrettier: getResolvedVersion("eslint-config-prettier", templateManifestOptions),
+    versionEslintConfigPrettier: getResolvedVersion(
+      "eslint-config-prettier",
+      templateManifestOptions
+    ),
     versionEslintPluginPlaywright: getResolvedVersion(
       "eslint-plugin-playwright",
       templateManifestOptions
