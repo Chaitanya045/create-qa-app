@@ -1,11 +1,5 @@
 import path from "node:path";
-import type {
-  Architecture,
-  CliConfig,
-  CypressCliConfig,
-  Framework,
-  PlaywrightCliConfig
-} from "../core/schema";
+import type { CliConfig, PlaywrightCliConfig } from "../core/schema";
 import {
   getBinaryCommand,
   getInstallCommand,
@@ -36,48 +30,6 @@ const SHARED_ASSETS: TemplateAsset[] = [
   }
 ];
 
-const CYPRESS_BASE_ASSETS: TemplateAsset[] = [
-  {
-    source: "frameworks/cypress/tsconfig.json.tpl",
-    destination: "tsconfig.json"
-  },
-  {
-    source: "frameworks/cypress/README.md.tpl",
-    destination: "README.md"
-  },
-  {
-    source: "frameworks/cypress/cypress.config.ts.tpl",
-    destination: "cypress.config.ts"
-  },
-  {
-    source: "frameworks/cypress/cypress/support/e2e.ts.tpl",
-    destination: "cypress/support/e2e.ts"
-  }
-];
-
-const CYPRESS_ARCHITECTURE_ASSETS: Record<Architecture, TemplateAsset[]> = {
-  pom: [
-    {
-      source: "frameworks/cypress/architectures/pom/cypress/support/pages/home.page.ts.tpl",
-      destination: "cypress/support/pages/home.page.ts"
-    },
-    {
-      source: "frameworks/cypress/architectures/pom/cypress/e2e/home.cy.ts.tpl",
-      destination: "cypress/e2e/home.cy.ts"
-    }
-  ],
-  feature: [
-    {
-      source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.fixture.ts.tpl",
-      destination: "cypress/e2e/home/home.fixture.ts"
-    },
-    {
-      source: "frameworks/cypress/architectures/feature/cypress/e2e/home/home.cy.ts.tpl",
-      destination: "cypress/e2e/home/home.cy.ts"
-    }
-  ]
-};
-
 function toPackageName(projectName: string): string {
   const normalized = projectName
     .trim()
@@ -90,12 +42,12 @@ function toPackageName(projectName: string): string {
   return normalized || "qa-project";
 }
 
-function getFrameworkLabel(framework: Framework): string {
-  return framework === "playwright" ? "Playwright" : "Cypress";
+function getFrameworkLabel(): string {
+  return "Playwright";
 }
 
-function getArchitectureLabel(architecture: Architecture): string {
-  return architecture === "pom" ? "Page Object Model (POM)" : "Feature Driven";
+function getArchitectureLabel(): string {
+  return "Page Object Model (POM)";
 }
 
 function getResolvedVersion(
@@ -187,32 +139,19 @@ function getPlaywrightPomAdvancedAssets(config: PlaywrightCliConfig): TemplateAs
 }
 
 function getPlaywrightArchitectureAssets(config: PlaywrightCliConfig): TemplateAsset[] {
-  if (config.architecture === "pom") {
-    if (config.pomTemplate === "advanced") {
-      return getPlaywrightPomAdvancedAssets(config);
-    }
-
-    const pagesDestinationRoot = config.useSrcLayout ? "src/pages" : "pages";
-    return [
-      {
-        source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
-        destination: `${pagesDestinationRoot}/home.page.ts`
-      },
-      {
-        source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
-        destination: `${config.testDirectory}/home.spec.ts`
-      }
-    ];
+  if (config.pomTemplate === "advanced") {
+    return getPlaywrightPomAdvancedAssets(config);
   }
 
+  const pagesDestinationRoot = config.useSrcLayout ? "src/pages" : "pages";
   return [
     {
-      source: "frameworks/playwright/architectures/feature/tests/home/home.page.ts.tpl",
-      destination: `${config.testDirectory}/home/home.page.ts`
+      source: "frameworks/playwright/architectures/pom/src/pages/home.page.ts.tpl",
+      destination: `${pagesDestinationRoot}/home.page.ts`
     },
     {
-      source: "frameworks/playwright/architectures/feature/tests/home/home.spec.ts.tpl",
-      destination: `${config.testDirectory}/home/home.spec.ts`
+      source: "frameworks/playwright/architectures/pom/tests/home.spec.ts.tpl",
+      destination: `${config.testDirectory}/home.spec.ts`
     }
   ];
 }
@@ -261,7 +200,7 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
     ...getPlaywrightArchitectureAssets(config)
   ];
 
-  if (config.architecture === "pom" && config.pomTemplate === "advanced") {
+  if (config.pomTemplate === "advanced") {
     assets.push({
       source: "frameworks/playwright/src/config/constants.ts.tpl",
       destination: `${configDestinationRoot}/constants.ts`
@@ -304,7 +243,7 @@ function getPlaywrightVariables(
   const typesModuleRoot = config.useSrcLayout ? "src/types" : "types";
 
   const pomPageModulePath =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
+    config.pomTemplate === "advanced"
       ? `${pagesModuleRoot}/login.page`
       : `${pagesModuleRoot}/home.page`;
 
@@ -317,21 +256,21 @@ function getPlaywrightVariables(
   const storageLocaleJson = JSON.stringify("en-US");
 
   const playwrightUserAgentLine =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
+    config.pomTemplate === "advanced"
       ? `,\n    userAgent:\n      ${storageUserAgentJson}`
       : "";
 
 
   const playwrightLocaleLine =
-    config.architecture === "pom" && config.pomTemplate === "advanced"
+    config.pomTemplate === "advanced"
       ? `,\n    locale: ${storageLocaleJson}`
       : "";
 
   return {
     projectName: config.projectName,
     packageName: toPackageName(config.projectName),
-    frameworkLabel: getFrameworkLabel(config.framework),
-    architectureLabel: getArchitectureLabel(config.architecture),
+    frameworkLabel: getFrameworkLabel(),
+    architectureLabel: getArchitectureLabel(),
     runtimeValidationLabel: config.useZod ? "Zod" : "None",
     installCommand: getInstallCommand(config.packageManager),
     typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
@@ -440,55 +379,12 @@ function getPlaywrightVariables(
   };
 }
 
-function getCypressAssets(config: CypressCliConfig): TemplateAsset[] {
-  return [
-    {
-      source: config.useZod
-        ? "frameworks/cypress/package.json.tpl"
-        : "frameworks/cypress/package.no-zod.json.tpl",
-      destination: "package.json"
-    },
-    {
-      source: config.useZod
-        ? "frameworks/cypress/cypress/support/env.ts.tpl"
-        : "frameworks/cypress/cypress/support/env.no-zod.ts.tpl",
-      destination: "cypress/support/env.ts"
-    },
-    ...CYPRESS_BASE_ASSETS,
-    ...CYPRESS_ARCHITECTURE_ASSETS[config.architecture]
-  ];
-}
-
-function getCypressVariables(config: CypressCliConfig): Record<string, string> {
-  return {
-    projectName: config.projectName,
-    packageName: toPackageName(config.projectName),
-    frameworkLabel: getFrameworkLabel(config.framework),
-    architectureLabel: getArchitectureLabel(config.architecture),
-    runtimeValidationLabel: config.useZod ? "Zod" : "None",
-    installCommand: getInstallCommand(config.packageManager),
-    typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
-    testCommand: getScriptCommand(config.packageManager, "test"),
-    openCommand: getScriptCommand(config.packageManager, "test:open"),
-    uiCommand: getScriptCommand(config.packageManager, "test:ui"),
-    htmlReportCommand: getScriptCommand(config.packageManager, "report:html"),
-    allureReportCommand: getScriptCommand(config.packageManager, "report:allure")
-  };
-}
-
 export function createTemplateManifest(
   config: CliConfig,
   templateManifestOptions: TemplateManifestOptions
 ): TemplateManifest {
-  if (config.framework === "playwright") {
-    return {
-      assets: [...SHARED_ASSETS, ...getPlaywrightAssets(config)],
-      variables: getPlaywrightVariables(config, templateManifestOptions)
-    };
-  }
-
   return {
-    assets: [...SHARED_ASSETS, ...getCypressAssets(config)],
-    variables: getCypressVariables(config)
+    assets: [...SHARED_ASSETS, ...getPlaywrightAssets(config)],
+    variables: getPlaywrightVariables(config, templateManifestOptions)
   };
 }

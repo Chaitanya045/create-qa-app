@@ -22,8 +22,8 @@ This produces `dist/index.js` for the `create-qa-app` executable.
 
 - Project prompts:
   - Project name
-  - Framework (Playwright/Cypress)
-  - Architecture (POM/Feature Driven)
+  - Framework (Playwright)
+  - Template (Minimal/Advanced POM)
   - Package manager (npm/pnpm/yarn/bun)
   - Runtime validation (Zod: Yes (Recommended) / No)
   - Playwright-only:

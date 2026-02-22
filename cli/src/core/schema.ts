@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const frameworkSchema = z.enum(["playwright", "cypress"]);
-export const architectureSchema = z.enum(["pom", "feature"]);
+export const frameworkSchema = z.enum(["playwright"]);
+export const architectureSchema = z.enum(["pom"]);
 export const packageManagerSchema = z.enum(["npm", "pnpm", "yarn", "bun"]);
 export const playwrightReporterSchema = z.enum(["html", "allure"]);
 export const playwrightPomTemplateSchema = z.enum(["minimal", "advanced"]);
@@ -24,14 +24,7 @@ const playwrightCliConfigSchema = baseCliConfigSchema.extend({
   installPlaywrightBrowsers: z.boolean()
 });
 
-const cypressCliConfigSchema = baseCliConfigSchema.extend({
-  framework: z.literal("cypress")
-});
-
-export const cliConfigSchema = z.discriminatedUnion("framework", [
-  playwrightCliConfigSchema,
-  cypressCliConfigSchema
-]);
+export const cliConfigSchema = playwrightCliConfigSchema;
 
 export type Framework = z.infer<typeof frameworkSchema>;
 export type Architecture = z.infer<typeof architectureSchema>;
@@ -39,5 +32,4 @@ export type PackageManagerOption = z.infer<typeof packageManagerSchema>;
 export type PlaywrightReporter = z.infer<typeof playwrightReporterSchema>;
 export type PlaywrightPomTemplate = z.infer<typeof playwrightPomTemplateSchema>;
 export type CliConfig = z.infer<typeof cliConfigSchema>;
-export type PlaywrightCliConfig = z.infer<typeof playwrightCliConfigSchema>;
-export type CypressCliConfig = z.infer<typeof cypressCliConfigSchema>;
+export type PlaywrightCliConfig = z.infer<typeof cliConfigSchema>;

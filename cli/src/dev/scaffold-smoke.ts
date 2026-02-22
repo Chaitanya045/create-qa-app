@@ -31,26 +31,38 @@ async function main(): Promise<void> {
 
   const cases: SmokeCase[] = [
     {
-      name: "cypress-pom-zod",
+      name: "playwright-pom-minimal",
       config: {
-        projectName: ".tmp-scaffold/cypress-pom-zod",
-        framework: "cypress",
+        projectName: ".tmp-scaffold/playwright-pom-minimal",
+        framework: "playwright",
         architecture: "pom",
         packageManager: "bun",
-        useZod: true,
-        installDeps: false
+        useZod: false,
+        installDeps: false,
+        testDirectory: "src/tests",
+        useSrcLayout: true,
+        pomTemplate: "minimal",
+        includePlaywrightWorkflow: false,
+        playwrightReporters: ["html"],
+        installPlaywrightBrowsers: false
       },
       commands: [["bun", "install"], ["bun", "run", "typecheck"]]
     },
     {
-      name: "cypress-feature-no-zod",
+      name: "playwright-pom-advanced",
       config: {
-        projectName: ".tmp-scaffold/cypress-feature-no-zod",
-        framework: "cypress",
-        architecture: "feature",
+        projectName: ".tmp-scaffold/playwright-pom-advanced",
+        framework: "playwright",
+        architecture: "pom",
         packageManager: "bun",
-        useZod: false,
-        installDeps: false
+        useZod: true,
+        installDeps: false,
+        testDirectory: "src/tests",
+        useSrcLayout: true,
+        pomTemplate: "advanced",
+        includePlaywrightWorkflow: true,
+        playwrightReporters: ["html"],
+        installPlaywrightBrowsers: false
       },
       commands: [["bun", "install"], ["bun", "run", "typecheck"]]
     }

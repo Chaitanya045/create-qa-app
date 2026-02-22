@@ -4,5 +4,3 @@ allure-report
 playwright-report
 test-results
 .auth
-cypress/screenshots
-cypress/videos

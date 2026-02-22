@@ -3,8 +3,8 @@
 ## Phase 1: Core Project Scaffolding
 - Goal: Produce a usable starter project from a guided CLI flow.
 - Choices:
-  - Framework: Playwright or Cypress
-  - Architecture: POM or Feature Driven
+  - Framework: Playwright
+  - Template: Minimal or Advanced POM
   - Optional dependency installation
 - Output:
   - TypeScript-first project
@@ -23,7 +23,7 @@
 - Goal: Add behavior-driven options while keeping architecture maintainable.
 - Add:
   - BDD mode toggle
-  - Cucumber for Playwright/Cypress
+  - Cucumber for Playwright
   - Feature files, step definition templates, and typed world/context
 
 ## Phase 4: Advanced Framework Options

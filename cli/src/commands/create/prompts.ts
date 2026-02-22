@@ -1,7 +1,6 @@
 import path from "node:path";
 import type { ClackModule } from "../../cli/clack";
 import {
-  type Architecture,
   cliConfigSchema,
   type CliConfig,
   type Framework,
@@ -16,13 +15,7 @@ import {
 } from "../../core/package-manager";
 
 const FRAMEWORK_OPTIONS: Array<{ value: Framework; label: string }> = [
-  { value: "playwright", label: "Playwright" },
-  { value: "cypress", label: "Cypress" }
-];
-
-const ARCHITECTURE_OPTIONS: Array<{ value: Architecture; label: string }> = [
-  { value: "pom", label: "Page Object Model (POM)" },
-  { value: "feature", label: "Feature Driven" }
+  { value: "playwright", label: "Playwright" }
 ];
 
 const PACKAGE_MANAGER_OPTIONS: Array<{ value: PackageManager; label: string }> = [
@@ -168,35 +161,20 @@ export async function promptForConfig(
     return null;
   }
 
-  const architectureInput = await clack.select<Architecture>({
-    message: "Architecture?",
-    options: ARCHITECTURE_OPTIONS
+  const pomTemplateInput = await clack.select<PlaywrightPomTemplate>({
+    message: "Template?",
+    options: PLAYWRIGHT_POM_TEMPLATE_OPTIONS,
+    initialValue: "minimal"
   });
 
-  if (clack.isCancel(architectureInput)) {
+  if (clack.isCancel(pomTemplateInput)) {
     return null;
   }
 
-  let pomTemplate: PlaywrightPomTemplate = "minimal";
-
-  if (frameworkInput === "playwright" && architectureInput === "pom") {
-    const pomTemplateInput = await clack.select<PlaywrightPomTemplate>({
-      message: "Template?",
-      options: PLAYWRIGHT_POM_TEMPLATE_OPTIONS,
-      initialValue: "minimal"
-    });
-
-    if (clack.isCancel(pomTemplateInput)) {
-      return null;
-    }
-
-    pomTemplate = pomTemplateInput;
-  }
-
-  const isMinimalPom =
-    frameworkInput === "playwright" && architectureInput === "pom" && pomTemplate === "minimal";
-  const totalSteps =
-    frameworkInput === "playwright" ? (isMinimalPom ? 2 : 4) : 1;
+  const pomTemplate = pomTemplateInput;
+  const architectureInput = "pom" as const;
+  const isMinimalPom = pomTemplate === "minimal";
+  const totalSteps = isMinimalPom ? 2 : 4;
 
   noteProgress(clack, 1, totalSteps, "🧰 Project setup");
   let packageManagerInput = await clack.select<PackageManager>({
@@ -288,10 +266,6 @@ export async function promptForConfig(
 
       includePlaywrightWorkflow = includePlaywrightWorkflowInput;
     }
-  }
-
-  if (frameworkInput === "cypress") {
-    clack.log.success("✅ Project setup complete");
   }
 
   let installDepsInput = await clack.confirm({
@@ -391,18 +365,5 @@ Install it globally and rerun:
     return parsedPlaywrightConfig.data;
   }
 
-  const parsedCypressConfig = cliConfigSchema.safeParse({
-    projectName: projectNameInput.trim(),
-    framework: frameworkInput,
-    architecture: architectureInput,
-    packageManager: packageManagerInput,
-    useZod: useZodInput,
-    installDeps: installDepsInput
-  });
-
-  if (!parsedCypressConfig.success) {
-    throw new Error("Failed to parse the Cypress CLI configuration.");
-  }
-
-  return parsedCypressConfig.data;
+  throw new Error("Unreachable: framework must be Playwright.");
 }
