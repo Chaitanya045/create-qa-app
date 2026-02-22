@@ -1,42 +1,40 @@
 # AGENTS.md
 
-## Purpose
-This repository builds `create-qa-app`, a CLI that scaffolds maintainable, type-safe automation testing projects.
+Guidance for AI agents working on this codebase.
 
-## Product Direction
-- Prioritize long-term maintainability over quick scaffolding hacks.
-- Keep generated projects strongly typed (TypeScript + Zod validation patterns).
-- Keep the CLI experience consistent, minimal, and predictable.
+## When Changing Scaffold Behavior
 
-## Code Structure
-- `cli/src/index.ts`: top-level CLI entrypoint and command routing.
-- `cli/src/commands/create/*`: create command flow and interactive prompts.
-- `cli/src/cli/*`: prompt/loading wrappers.
-- `cli/src/core/schema.ts`: shared typed config contract.
-- `cli/src/template/*`: template manifests and template resolution logic.
-- `cli/src/core/scaffold.ts`: filesystem creation logic.
-- `cli/src/core/package-manager.ts`: package manager detection/commands.
-- `cli/src/core/install.ts`: dependency installation runner.
+Changes to prompts, templates, or config flow usually touch multiple files. Update them together:
 
-## Implementation Rules
-- Keep template logic deterministic and side-effect free.
-- Prefer explicit types and narrow unions for new prompt options.
-- Validate all prompt-derived config through Zod schemas.
-- When adding or changing scaffold modes, update schema types, prompt options, and template mappings together.
-- Do not introduce framework-specific assumptions into shared utilities unless guarded by framework checks.
-- Keep generated project defaults runnable without manual file edits.
-- Avoid hidden or partial options in prompts; expose only combinations that scaffold correctly.
+1. **Schema** (`cli/src/core/schema.ts`) – Add or change types, Zod schemas.
+2. **Prompts** (`cli/src/commands/create/prompts.ts`) – Collect user input; pass validated config.
+3. **Manifest** (`cli/src/template/manifest.ts`) – Map config to template assets and variables.
+4. **Templates** (`cli/template/frameworks/playwright/`) – Add or edit `.tpl` files.
+5. **Smoke tests** (`cli/src/dev/scaffold-smoke.ts`) – Add or adjust cases for new configs.
 
-## Quality Gates
-Before finishing a change, run:
+## Minimal vs Advanced POM
 
-```bash
-bun run check
-bun run build
-```
+- **Minimal**: Skips reporting and CI prompts; Zod defaults to No; `totalSteps` is 2.
+- **Advanced**: Shows reporting (HTML/Allure) and CI workflow prompts; Zod defaults to Yes; `totalSteps` is 4.
 
-For behavior changes, also run:
+When adding prompts or steps, gate them with `pomTemplate === "minimal"` (skip for minimal) or `pomTemplate === "advanced"` (run only for advanced). Keep `totalSteps` correct for each path.
 
-```bash
-bun run dev
-```
+## Where to Look
+
+- **Prompt flow and config collection**: `cli/src/commands/create/prompts.ts`
+- **Scaffolding and install**: `cli/src/commands/create/index.ts`
+- **Template selection and variables**: `cli/src/template/manifest.ts`
+- **New template files**: `cli/template/frameworks/playwright/architectures/pom/`
+- **Dependency resolution**: `cli/src/core/version-resolver.ts`, `cli/src/commands/create/index.ts` (getPlaywrightDependencyPackages)
+
+## Rules
+
+- Validate all prompt-derived config through Zod before use.
+- Keep template logic deterministic; no side effects in manifest or renderer.
+- New prompt options must have corresponding schema fields and manifest handling.
+- Generated projects must run without manual edits.
+- Do not add prompt options that cannot be fully scaffolded.
+
+## Before Finishing
+
+Run `bun run check` and `bun run build`. For prompt or scaffold changes, run `bun run dev` to verify the flow.

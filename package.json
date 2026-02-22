@@ -11,6 +11,7 @@
     "cli/template"
   ],
   "scripts": {
+    "prepublishOnly": "bun run build",
     "build": "tsup",
     "dev": "bun run cli/src/index.ts",
     "typecheck": "tsc --noEmit",
