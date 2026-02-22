@@ -5,7 +5,7 @@ Scaffold type-safe Playwright automation testing projects with Page Object Model
 ## Quick Start
 
 ```bash
-npm create qa-app
+npx create qa-app
 ```
 
 Follow the prompts to set up your project. You can also use `bun create qa-app` or `pnpm create qa-app`.
