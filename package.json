@@ -10,6 +10,11 @@
     "dist",
     "cli/template"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chaitanya045/create-qa-app"
+  },
+  "keywords": ["playwright", "testing", "scaffold", "qa", "e2e"],
   "scripts": {
     "prepublishOnly": "bun run build",
     "build": "tsup",
