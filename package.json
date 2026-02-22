@@ -1,6 +1,6 @@
 {
   "name": "create-qa-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold type-safe automation testing projects",
   "type": "module",
   "bin": {
@@ -14,7 +14,13 @@
     "type": "git",
     "url": "https://github.com/Chaitanya045/create-qa-app"
   },
-  "keywords": ["playwright", "testing", "scaffold", "qa", "e2e"],
+  "keywords": [
+    "playwright",
+    "testing",
+    "scaffold",
+    "qa",
+    "e2e"
+  ],
   "scripts": {
     "prepublishOnly": "bun run build",
     "build": "tsup",
