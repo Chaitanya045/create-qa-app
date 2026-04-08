@@ -19,14 +19,14 @@ describe("install command runner", () => {
     const cwd = await createTempDir("install-success-");
     tempDirs.push(cwd);
 
-    await expect(runCommand(cwd, "bun", ["--version"])).resolves.toBeUndefined();
+    expect(runCommand(cwd, "bun", ["--version"])).resolves.toBeUndefined();
   });
 
   test("rejects when the command exits with a failure code", async () => {
     const cwd = await createTempDir("install-failure-");
     tempDirs.push(cwd);
 
-    await expect(runCommand(cwd, "bun", ["-e", "process.exit(2)"])).rejects.toThrow(
+    expect(runCommand(cwd, "bun", ["-e", "process.exit(2)"])).rejects.toThrow(
       "Command failed with exit code 2: bun -e process.exit(2)"
     );
   });
