@@ -6,14 +6,13 @@ import {
   detectPackageManager,
   getInstallCommand,
   getPlaywrightCommand,
-  getPlaywrightInstallBrowsersCommand,
-  getScriptCommand
+  getPlaywrightInstallBrowsersCommand
 } from "../../core/package-manager";
 import { scaffoldProject } from "../../core/scaffold";
 import { resolveLatestVersions, type ResolvedVersions } from "../../core/version-resolver";
 import type { PlaywrightCliConfig } from "../../core/schema";
 
-function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
   }
@@ -21,7 +20,7 @@ function getErrorMessage(error: unknown): string {
   return "Unexpected error while creating the project.";
 }
 
-function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] {
+export function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] {
   const dependencies = ["@playwright/test", "@types/node", "typescript"];
   dependencies.push(
     "eslint",
@@ -43,6 +42,22 @@ function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] 
   }
 
   return dependencies;
+}
+
+export function getNextSteps(config: PlaywrightCliConfig): string[] {
+  const nextSteps = [`cd ${config.projectName}`];
+
+  if (!config.installDeps) {
+    nextSteps.push(getInstallCommand(config.packageManager));
+  } else if (!config.installPlaywrightBrowsers) {
+    nextSteps.push(getPlaywrightInstallBrowsersCommand(config.packageManager, false));
+  }
+
+  nextSteps.push(getPlaywrightCommand(config.packageManager, ["test"]));
+  nextSteps.push(getPlaywrightCommand(config.packageManager, ["test", "--ui"]));
+  nextSteps.push(getPlaywrightCommand(config.packageManager, ["codegen"]));
+
+  return nextSteps;
 }
 
 export async function runCreateCommand(): Promise<void> {
@@ -103,23 +118,7 @@ export async function runCreateCommand(): Promise<void> {
     process.exit(1);
   }
 
-  const nextSteps = [`cd ${config.projectName}`];
-
-  if (!config.installDeps) {
-    nextSteps.push(getInstallCommand(config.packageManager));
-  }
-
-  if (config.framework === "playwright") {
-    if (config.installDeps && !config.installPlaywrightBrowsers) {
-      nextSteps.push(getPlaywrightInstallBrowsersCommand(config.packageManager, false));
-    }
-
-    nextSteps.push(getPlaywrightCommand(config.packageManager, ["test"]));
-    nextSteps.push(getPlaywrightCommand(config.packageManager, ["test", "--ui"]));
-    nextSteps.push(getPlaywrightCommand(config.packageManager, ["codegen"]));
-  } else {
-    nextSteps.push(getScriptCommand(config.packageManager, "test"));
-  }
+  const nextSteps = getNextSteps(config);
 
   clack.outro(`🎉 Your ${config.projectName} project is ready!
 

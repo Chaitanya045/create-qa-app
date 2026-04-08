@@ -5,7 +5,7 @@ import {
   type PackageManager
 } from "./package-manager";
 
-async function runCommand(cwd: string, command: string, args: string[]): Promise<void> {
+export async function runCommand(cwd: string, command: string, args: string[]): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const childProcess = spawn(command, args, {
       cwd,

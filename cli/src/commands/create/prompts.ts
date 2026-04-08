@@ -50,7 +50,7 @@ type PackageManagerOption = {
   hint?: string;
 };
 
-function getPackageManagerOptionsWithStatus(
+export function getPackageManagerOptionsWithStatus(
   availability: PackageManagerAvailability
 ): PackageManagerOption[] {
   return PACKAGE_MANAGER_OPTIONS.map((packageManagerOption) => ({
@@ -59,7 +59,7 @@ function getPackageManagerOptionsWithStatus(
   }));
 }
 
-function getInstalledPackageManagerOptions(
+export function getInstalledPackageManagerOptions(
   availability: PackageManagerAvailability
 ): PackageManagerOption[] {
   return getPackageManagerOptionsWithStatus(availability).filter(
@@ -67,7 +67,7 @@ function getInstalledPackageManagerOptions(
   );
 }
 
-function validateProjectName(value: string | undefined): string | Error | undefined {
+export function validateProjectName(value: string | undefined): string | Error | undefined {
   const trimmedValue = (value ?? "").trim();
 
   if (!trimmedValue) {
@@ -85,7 +85,7 @@ function validateProjectName(value: string | undefined): string | Error | undefi
   return undefined;
 }
 
-function normalizeTestDirectory(value: string): string {
+export function normalizeTestDirectory(value: string): string {
   return value
     .trim()
     .replace(/\\/g, "/")
@@ -93,7 +93,9 @@ function normalizeTestDirectory(value: string): string {
     .replace(/\/+$/, "");
 }
 
-function validatePlaywrightTestDirectory(value: string | undefined): string | Error | undefined {
+export function validatePlaywrightTestDirectory(
+  value: string | undefined
+): string | Error | undefined {
   const trimmedValue = (value ?? "").trim();
 
   if (!trimmedValue) {

@@ -35,6 +35,12 @@ When adding prompts or steps, gate them with `pomTemplate === "minimal"` (skip f
 - Generated projects must run without manual edits.
 - Do not add prompt options that cannot be fully scaffolded.
 
+## Testing Quality
+
+- Avoid unnecessary `await` usage in tests, especially before `expect(...).resolves` and `expect(...).rejects` chains.
+- Aim for full test coverage of the behavior you add or change. Cover all meaningful branches and variants, not just the default path.
+- If a test no longer validates real behavior after a code change, update or remove it instead of keeping stale coverage around.
+
 ## Before Finishing
 
 Run `bun run check` and `bun run build`. For prompt or scaffold changes, run `bun run dev` to verify the flow.
