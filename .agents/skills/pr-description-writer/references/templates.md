@@ -28,12 +28,29 @@ Use these patterns when the repository does not already define its own PR templa
 - Call out migrations, config changes, or manual rollout steps.
 - Keep bullets grouped by theme instead of by file.
 
+## Conventional Title Pattern
+
+When the repository uses conventional PR titles, follow this pattern:
+
+```text
+type(scope): short reviewer-facing summary
+```
+
+Examples:
+
+```text
+feat(skills): add PR description writer skill
+fix(cli): handle missing Playwright version fallback
+refactor(prompts): simplify advanced POM branching
+chore(git): ignore Python cache files
+```
+
 ## Example: Feature
 
 Title:
 
 ```text
-Add advanced POM reporting and CI scaffold prompts
+feat(scaffold): add advanced POM reporting and CI scaffold prompts
 ```
 
 Body:
@@ -54,7 +71,7 @@ Body:
 Title:
 
 ```text
-Fix version resolver fallback for Playwright packages
+fix(deps): resolve Playwright version fallback
 ```
 
 Body:
@@ -75,7 +92,7 @@ Body:
 Title:
 
 ```text
-Refactor create command prompt flow for POM variants
+refactor(prompts): simplify create command flow for POM variants
 ```
 
 Body:

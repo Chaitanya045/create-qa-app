@@ -24,6 +24,7 @@ Turn a branch's full change set into a reviewer-facing PR title and body. Keep t
 - Follow the repository template if one exists.
 - Otherwise use the default structure from `references/templates.md`.
 - Keep the title short, specific, and reviewer-facing.
+- Prefer a conventional title format when the repository uses it, such as `feat(scope): ...`, `fix(scope): ...`, `refactor(scope): ...`, or `chore(scope): ...`.
 - Keep bullets parallel, concrete, and focused on why the change matters.
 
 4. Sanity-check the draft.
@@ -66,8 +67,11 @@ Add `## Risks`, `## Notes`, or `## Follow-ups` only when they help reviewers.
 
 ## Title Guidance
 
-- Use verb-led titles such as `Add...`, `Fix...`, `Improve...`, or `Refactor...`.
-- Include the surface area when useful, for example `Improve advanced POM scaffold prompts`.
+- Prefer conventional PR titles when the repository history uses them.
+- Use lowercase type prefixes such as `feat`, `fix`, `refactor`, `chore`, or `docs`.
+- Add a scope when it clarifies the area, for example `feat(skills): add PR description writer skill`.
+- After the colon, use a short action-oriented summary in sentence case or lowercase, matching repo history.
+- Fall back to a plain verb-led title only when the repository does not appear to use conventional titles.
 - Keep titles narrow enough that a reviewer can infer scope before opening the PR.
 
 ## Examples
