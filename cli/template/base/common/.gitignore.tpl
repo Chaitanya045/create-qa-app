@@ -4,3 +4,6 @@ allure-report
 playwright-report
 test-results
 .auth
+.env
+.env.*
+!.env.example

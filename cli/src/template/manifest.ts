@@ -167,6 +167,10 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
       destination: "package.json"
     },
     {
+      source: "frameworks/playwright/.env.example.tpl",
+      destination: ".env.example"
+    },
+    {
       source: "frameworks/playwright/.husky/pre-commit.tpl",
       destination: ".husky/pre-commit"
     },
@@ -363,6 +367,7 @@ function getPlaywrightVariables(
     versionTypescriptEslint: getResolvedVersion("typescript-eslint", templateManifestOptions),
     versionPlaywrightTest: getResolvedVersion("@playwright/test", templateManifestOptions),
     versionTypesNode: getResolvedVersion("@types/node", templateManifestOptions),
+    versionDotenv: getResolvedVersion("dotenv", templateManifestOptions),
     versionTypescript: getResolvedVersion("typescript", templateManifestOptions),
     playwrightHtmlScriptLine: hasHtml ? ',\n    "report:html": "playwright show-report"' : "",
     playwrightZodDependencyLine: config.useZod

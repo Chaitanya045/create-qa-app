@@ -26,6 +26,7 @@
   "devDependencies": {
     "@playwright/test": "{{versionPlaywrightTest}}",
     "@types/node": "{{versionTypesNode}}",
+    "dotenv": "{{versionDotenv}}",
     "@eslint/js": "{{versionEslintJs}}",
     "eslint": "{{versionEslint}}",
     "eslint-config-prettier": "{{versionEslintConfigPrettier}}",

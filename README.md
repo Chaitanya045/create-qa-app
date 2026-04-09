@@ -18,6 +18,7 @@ Every generated project includes:
 |------|---------|
 | **TypeScript** | Strict typing, ES modules |
 | **Playwright** | End-to-end testing |
+| **dotenv** | Auto-load local `.env` values |
 | **ESLint** | Linting with TypeScript and Playwright best-practice rules |
 | **Prettier** | Code formatting |
 | **Husky** | Git hooks |
@@ -68,6 +69,7 @@ Choose **Minimal** when you want a lightweight setup to get started quickly:
 
 ```
 my-project/
+├── .env.example
 ├── src/
 │   ├── config/
 │   │   └── env.ts
@@ -100,6 +102,7 @@ Choose **Advanced** when you need a production-ready structure:
 
 ```
 my-project/
+├── .env.example
 ├── src/
 │   ├── config/
 │   │   ├── env.ts
@@ -135,6 +138,8 @@ my-project/
 
 ## Zod: Runtime Validation
 
+Generated projects auto-load `.env` with `dotenv`, ship a tracked `.env.example`, and ignore real `.env` files so secrets stay out of git.
+
 When prompted **"Use Zod for runtime validation?"**, you choose how environment variables (like `BASE_URL`, `USERNAME`, `PASSWORD`) are validated.
 
 ### With Zod (recommended for advanced)
@@ -145,6 +150,8 @@ When prompted **"Use Zod for runtime validation?"**, you choose how environment 
 
 ```ts
 // env.ts
+import "dotenv/config";
+
 const envSchema = z.object({
   BASE_URL: z.url().default("https://example.com"),
   USERNAME: z.string().min(1).default("user"),
@@ -160,3 +167,10 @@ export const env = envSchema.parse(process.env);
 - **Lighter** – Good for quick setups
 
 Choose **Yes** when you want stronger guarantees and typed schema. Choose **No** when you prefer minimal setup and fewer dependencies.
+
+## Environment Files and Secrets
+
+- Copy `.env.example` to `.env` and update the values for your environment.
+- Generated projects load `.env` automatically when the shared env config is imported.
+- `.env` and `.env.*` are ignored by git, while `.env.example` remains tracked.
+- In CI, set `BASE_URL`, `USERNAME`, and `PASSWORD` through provider secrets instead of committing a real `.env` file.

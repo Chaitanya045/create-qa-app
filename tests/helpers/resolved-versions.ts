@@ -6,6 +6,7 @@ export const resolvedVersions: ResolvedVersions = {
   "@types/node": "25.3.0",
   "allure-commandline": "2.34.1",
   "allure-playwright": "3.4.1",
+  dotenv: "17.4.1",
   eslint: "10.0.1",
   "eslint-config-prettier": "10.1.8",
   "eslint-plugin-playwright": "2.7.0",

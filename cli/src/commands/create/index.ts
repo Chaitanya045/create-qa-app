@@ -21,7 +21,7 @@ export function getErrorMessage(error: unknown): string {
 }
 
 export function getPlaywrightDependencyPackages(config: PlaywrightCliConfig): string[] {
-  const dependencies = ["@playwright/test", "@types/node", "typescript"];
+  const dependencies = ["@playwright/test", "@types/node", "dotenv", "typescript"];
   dependencies.push(
     "eslint",
     "@eslint/js",

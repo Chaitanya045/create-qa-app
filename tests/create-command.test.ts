@@ -19,6 +19,7 @@ describe("create command helpers", () => {
     expect(getPlaywrightDependencyPackages(createPlaywrightConfig())).toEqual([
       "@playwright/test",
       "@types/node",
+      "dotenv",
       "typescript",
       "eslint",
       "@eslint/js",
@@ -33,7 +34,7 @@ describe("create command helpers", () => {
 
   test("adds optional dependencies for zod and allure", () => {
     expect(getPlaywrightDependencyPackages(createAdvancedPlaywrightConfig())).toEqual(
-      expect.arrayContaining(["zod", "allure-playwright", "allure-commandline"])
+      expect.arrayContaining(["dotenv", "zod", "allure-playwright", "allure-commandline"])
     );
   });
 
