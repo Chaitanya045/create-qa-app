@@ -12,6 +12,7 @@ describe("template manifest", () => {
       resolvedVersions
     });
 
+    expect(manifest.assets.map((asset) => asset.destination)).toContain(".env.example");
     expect(manifest.assets.map((asset) => asset.destination)).toContain("src/tests/home.spec.ts");
     expect(manifest.assets.map((asset) => asset.destination)).not.toContain(
       ".github/workflows/playwright.yml"
@@ -22,6 +23,7 @@ describe("template manifest", () => {
     );
     expect(manifest.variables.playwrightPomPageImportPath).toBe("../pages/home.page");
     expect(manifest.variables.playwrightZodDependencyLine).toBe("");
+    expect(manifest.variables.versionDotenv).toBe("17.4.1");
   });
 
   test("generates advanced assets, workflow, and reporter variables", () => {

@@ -26,6 +26,7 @@
     "build": "tsup",
     "dev": "bun run cli/src/index.ts",
     "test": "bun test",
+    "smoke": "bun run tests/scaffold-smoke.ts",
     "typecheck": "tsc --noEmit",
     "lint": "bunx eslint .",
     "lint:fix": "bunx eslint . --fix",

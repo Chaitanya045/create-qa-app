@@ -10,7 +10,7 @@ Changes to prompts, templates, or config flow usually touch multiple files. Upda
 2. **Prompts** (`cli/src/commands/create/prompts.ts`) – Collect user input; pass validated config.
 3. **Manifest** (`cli/src/template/manifest.ts`) – Map config to template assets and variables.
 4. **Templates** (`cli/template/frameworks/playwright/`) – Add or edit `.tpl` files.
-5. **Smoke tests** (`cli/src/dev/scaffold-smoke.ts`) – Add or adjust cases for new configs.
+5. **Smoke tests** (`tests/scaffold-smoke.ts`) – Add or adjust cases for new configs.
 
 ## Minimal vs Advanced POM
 

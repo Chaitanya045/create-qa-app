@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 const DEFAULT_BASE_URL = "https://the-internet.herokuapp.com";
 const DEFAULT_USERNAME = "tomsmith";
 const DEFAULT_PASSWORD = "SuperSecretPassword!";
