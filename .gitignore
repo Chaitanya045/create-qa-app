@@ -37,3 +37,7 @@ __pycache__/
 
 # local scaffold outputs
 .tmp-scaffold/
+
+# mise local overrides
+mise.local.toml
+.mise.local.toml

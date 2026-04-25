@@ -1,0 +1,29 @@
+min_version = "2025.11.5"
+
+[tools]
+bun = "1.3.8"
+node = "20"
+
+[tasks.deps]
+description = "Install repository dependencies with Bun"
+run = "bun install"
+
+[tasks.check]
+description = "Run typecheck, lint, and format verification"
+run = "bun run check"
+
+[tasks.test]
+description = "Run Bun unit tests"
+run = "bun run test"
+
+[tasks.build]
+description = "Build the CLI"
+run = "bun run build"
+
+[tasks.smoke]
+description = "Run scaffold smoke verification"
+run = "bun run smoke"
+
+[tasks.dev]
+description = "Start the interactive scaffold CLI"
+run = "bun run dev"
