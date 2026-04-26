@@ -4,6 +4,8 @@ node_modules
 # output
 out
 dist
+!.agents/skills/dist/
+!.agents/skills/dist/*.skill
 *.tgz
 
 # code coverage
