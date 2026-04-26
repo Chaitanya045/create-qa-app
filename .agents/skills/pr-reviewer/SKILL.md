@@ -14,6 +14,7 @@ Review PRs in this repository for correctness first. Prioritize bugs, security i
 3. Check the repo-specific vulnerability and regression classes below.
 4. Verify tests and coverage expectations for the changed behavior.
 5. Report findings first, ordered by severity, with file references.
+6. If reviewing a GitHub PR, leave review comments on concrete issues when the change author would benefit from line-level guidance.
 
 ## Repo-Specific Review Checks
 
@@ -146,3 +147,20 @@ After findings, include:
 - `No findings` explicitly when nothing actionable is found.
 
 Keep summaries brief. The review should primarily help catch regressions and vulnerabilities before merge.
+
+## GitHub PR Comments
+
+When reviewing a GitHub PR, add comments only for actionable findings or clarifying questions.
+
+Prefer:
+
+- one comment per issue
+- specific file/line context
+- direct explanation of the risk or regression
+- a concise suggestion for what to change
+
+Avoid leaving comments for:
+
+- pure style preferences with no behavioral impact
+- issues already covered by an existing unresolved review comment
+- vague feedback without a concrete ask
