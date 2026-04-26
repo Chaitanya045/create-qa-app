@@ -10,6 +10,10 @@ npx create-qa-app
 
 Follow the prompts to set up your project. You can also use `bunx create-qa-app` or `pnpm dlx create-qa-app`.
 
+## Contributing
+
+This repository uses `mise` to pin Bun and Node versions for local development and CI. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the full contributor setup and workflow.
+
 ## What You Get
 
 Every generated project includes:
