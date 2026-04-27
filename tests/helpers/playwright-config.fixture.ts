@@ -7,6 +7,7 @@ const defaultPlaywrightConfig: PlaywrightCliConfig = {
   packageManager: "bun",
   useZod: false,
   installDeps: false,
+  includeMise: false,
   testDirectory: "src/tests",
   useSrcLayout: true,
   pomTemplate: "minimal",

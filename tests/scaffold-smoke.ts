@@ -62,6 +62,7 @@ async function main(): Promise<void> {
         packageManager: "bun",
         useZod: false,
         installDeps: false,
+        includeMise: false,
         testDirectory: "src/tests",
         useSrcLayout: true,
         pomTemplate: "minimal",
@@ -102,6 +103,7 @@ async function main(): Promise<void> {
         packageManager: "bun",
         useZod: true,
         installDeps: false,
+        includeMise: true,
         testDirectory: "src/tests",
         useSrcLayout: true,
         pomTemplate: "advanced",
@@ -113,7 +115,7 @@ async function main(): Promise<void> {
         ["bun", "install"],
         ["bun", "run", "typecheck"]
       ],
-      expectedFiles: [".env.example"],
+      expectedFiles: [".env.example", "mise.toml"],
       expectedContent: [
         {
           file: ".gitignore",
@@ -124,12 +126,25 @@ async function main(): Promise<void> {
           includes: ["BASE_URL=", "USERNAME=", "PASSWORD="]
         },
         {
+          file: "mise.toml",
+          includes: ['node = "latest"', 'bun = "latest"', 'run = "bun install"']
+        },
+        {
           file: "src/config/env.ts",
           includes: ['import "dotenv/config";']
         },
         {
           file: "README.md",
-          includes: ["## Environment", ".env.example", "CI provider secrets"]
+          includes: [
+            "## Environment",
+            ".env.example",
+            "CI provider secrets",
+            "Trust `mise.toml` with `mise trust`."
+          ]
+        },
+        {
+          file: ".github/workflows/playwright.yml",
+          includes: ["jdx/mise-action@v4"]
         }
       ]
     }

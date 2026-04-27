@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createPlaywrightConfig } from "./helpers/playwright-config.fixture";
 import {
   getInstalledPackageManagerOptions,
   getPackageManagerOptionsWithStatus,
@@ -60,5 +61,9 @@ describe("prompt helpers", () => {
       { value: "pnpm", label: "pnpm", hint: "installed" },
       { value: "bun", label: "bun", hint: "installed" }
     ]);
+  });
+
+  test("defaults generated fixture configs to mise disabled", () => {
+    expect(createPlaywrightConfig().includeMise).toBe(false);
   });
 });
