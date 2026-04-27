@@ -22,8 +22,25 @@ describe("template manifest", () => {
       '[["line"], ["html", { open: "never" }]]'
     );
     expect(manifest.variables.playwrightPomPageImportPath).toBe("../pages/home.page");
+    expect(manifest.variables.playwrightMiseSetupSection).toContain(
+      "generated without `mise` setup"
+    );
     expect(manifest.variables.playwrightZodDependencyLine).toBe("");
     expect(manifest.variables.versionDotenv).toBe("17.4.1");
+  });
+
+  test("adds mise asset and workflow setup when enabled", () => {
+    const manifest = createTemplateManifest(
+      createAdvancedPlaywrightConfig({ includeMise: true, packageManager: "bun" }),
+      {
+        resolvedVersions
+      }
+    );
+
+    expect(manifest.assets.map((asset) => asset.destination)).toContain("mise.toml");
+    expect(manifest.variables.playwrightMiseTools).toContain('node = "latest"');
+    expect(manifest.variables.playwrightMiseTools).toContain('bun = "latest"');
+    expect(manifest.variables.playwrightWorkflowSetupAction).toContain("jdx/mise-action@v4");
   });
 
   test("generates advanced assets, workflow, and reporter variables", () => {

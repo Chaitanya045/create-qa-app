@@ -11,7 +11,8 @@ const baseCliConfigSchema = z.object({
   architecture: architectureSchema,
   packageManager: packageManagerSchema,
   useZod: z.boolean(),
-  installDeps: z.boolean()
+  installDeps: z.boolean(),
+  includeMise: z.boolean()
 });
 
 const playwrightCliConfigSchema = baseCliConfigSchema.extend({

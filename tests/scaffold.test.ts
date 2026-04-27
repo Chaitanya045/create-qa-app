@@ -45,6 +45,7 @@ describe("scaffold project", () => {
     expect(files[".env.example"]).toContain("BASE_URL=https://the-internet.herokuapp.com");
     expect(files[".gitignore"]).toContain("node_modules");
     expect(files[".gitignore"]).toContain("!.env.example");
+    expect(files["README.md"]).toContain("generated without `mise` setup");
   });
 
   test("scaffolds an advanced project with auth fixture and workflow", async () => {
@@ -73,6 +74,29 @@ describe("scaffold project", () => {
     expect(files["README.md"]).toContain("- `HTML`\n- `Allure`");
     expect(files["README.md"]).toContain("CI provider secrets");
     expect(huskyStat.mode & 0o111).not.toBe(0);
+  });
+
+  test("scaffolds optional mise setup when requested", async () => {
+    const baseDir = await createTempDir("scaffold-mise-");
+    tempDirs.push(baseDir);
+
+    const result = await scaffoldProject(
+      baseDir,
+      createAdvancedPlaywrightConfig({ includeMise: true, packageManager: "pnpm" }),
+      {
+        resolvedVersions
+      }
+    );
+
+    const files = await readTextFiles(result.targetDir);
+
+    expect(files["mise.toml"]).toContain('node = "latest"');
+    expect(files["mise.toml"]).toContain('pnpm = "latest"');
+    expect(files["mise.toml"]).toContain('run = "pnpm install"');
+    expect(files["README.md"]).toContain("1. Trust `mise.toml` with `mise trust`.");
+    expect(files["README.md"]).toContain("3. Install dependencies with `pnpm install`.");
+    expect(files["README.md"]).toContain("Trust `mise.toml` with `mise trust`.");
+    expect(files[".github/workflows/playwright.yml"]).toContain("jdx/mise-action@v4");
   });
 
   test("rejects scaffolding into a non-empty target directory", async () => {

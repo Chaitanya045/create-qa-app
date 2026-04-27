@@ -202,6 +202,7 @@ export async function promptForConfig(
   let testDirectory = "tests";
   let includePlaywrightWorkflow = false;
   let playwrightReporters: PlaywrightReporter[] = ["html"];
+  let includeMise = false;
   let useSrcLayout = true;
 
   if (frameworkInput === "playwright") {
@@ -232,6 +233,17 @@ export async function promptForConfig(
 
     useSrcLayout = useSrcLayoutInput;
     testDirectory = useSrcLayout ? `src/${normalizedTestDirectory}` : normalizedTestDirectory;
+
+    const includeMiseInput = await clack.confirm({
+      message: "Add mise setup?",
+      initialValue: false
+    });
+
+    if (clack.isCancel(includeMiseInput)) {
+      return null;
+    }
+
+    includeMise = includeMiseInput;
 
     clack.log.success("✅ Testing setup complete");
     // Skip report selection for minimal POM; use default HTML only
@@ -354,6 +366,7 @@ Install it globally and rerun:
       packageManager: packageManagerInput,
       useZod: useZodInput,
       installDeps: installDepsInput,
+      includeMise,
       testDirectory,
       useSrcLayout,
       pomTemplate,

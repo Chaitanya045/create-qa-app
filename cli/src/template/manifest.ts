@@ -79,6 +79,64 @@ function formatCommandList(commands: string[]): string {
   return commands.map((command) => `- \`${command}\``).join("\n");
 }
 
+function formatGettingStartedSteps(config: PlaywrightCliConfig): string {
+  if (config.includeMise) {
+    return [
+      "1. Trust `mise.toml` with `mise trust`.",
+      "2. Install pinned tools with `mise install`.",
+      `3. Install dependencies with \`${getInstallCommand(config.packageManager)}\`.`,
+      "4. Copy `.env.example` to `.env`.",
+      "5. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment.",
+      `6. Run type checks with \`${getScriptCommand(config.packageManager, "typecheck")}\`.`,
+      `7. Format the code with \`${getScriptCommand(config.packageManager, "format")}\`.`,
+      `8. Run lint checks with \`${getScriptCommand(config.packageManager, "lint")}\`.`,
+      "9. Run your test suite.",
+      `10. Install Playwright browsers with \`${getPlaywrightInstallBrowsersCommand(config.packageManager, false)}\`.`
+    ].join("\n");
+  }
+
+  return [
+    `1. Install dependencies with \`${getInstallCommand(config.packageManager)}\`.`,
+    "2. Copy `.env.example` to `.env`.",
+    "3. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment.",
+    `4. Run type checks with \`${getScriptCommand(config.packageManager, "typecheck")}\`.`,
+    `5. Format the code with \`${getScriptCommand(config.packageManager, "format")}\`.`,
+    `6. Run lint checks with \`${getScriptCommand(config.packageManager, "lint")}\`.`,
+    "7. Run your test suite.",
+    `8. Install Playwright browsers with \`${getPlaywrightInstallBrowsersCommand(config.packageManager, false)}\`.`
+  ].join("\n");
+}
+
+function formatMiseSection(config: PlaywrightCliConfig): string {
+  if (!config.includeMise) {
+    return "This project was generated without `mise` setup. You can add it later if your team wants pinned local tool versions.";
+  }
+
+  return [
+    "- Trust the checked-in `mise.toml` with `mise trust`.",
+    "- Install the pinned tools with `mise install`.",
+    "- You can then run the same project commands through `mise run <task>` if you prefer."
+  ].join("\n");
+}
+
+function formatMiseTools(config: PlaywrightCliConfig): string {
+  const tools = ['node = "latest"'];
+
+  if (config.packageManager === "bun") {
+    tools.push('bun = "latest"');
+  }
+
+  if (config.packageManager === "pnpm") {
+    tools.push('pnpm = "latest"');
+  }
+
+  if (config.packageManager === "yarn") {
+    tools.push('yarn = "latest"');
+  }
+
+  return tools.map((tool) => `${tool}`).join("\n");
+}
+
 function getPlaywrightWorkflowTemplate(config: PlaywrightCliConfig): string {
   if (
     config.playwrightReporters.includes("html") &&
@@ -214,6 +272,13 @@ function getPlaywrightAssets(config: PlaywrightCliConfig): TemplateAsset[] {
     });
   }
 
+  if (config.includeMise) {
+    assets.push({
+      source: "frameworks/playwright/mise.toml.tpl",
+      destination: "mise.toml"
+    });
+  }
+
   if (config.includePlaywrightWorkflow) {
     assets.push({
       source: getPlaywrightWorkflowTemplate(config),
@@ -274,6 +339,9 @@ function getPlaywrightVariables(
     frameworkLabel: getFrameworkLabel(),
     architectureLabel: getArchitectureLabel(),
     runtimeValidationLabel: config.useZod ? "Zod" : "None",
+    playwrightMiseTools: formatMiseTools(config),
+    playwrightMiseSetupSection: formatMiseSection(config),
+    playwrightGettingStartedSteps: formatGettingStartedSteps(config),
     installCommand: getInstallCommand(config.packageManager),
     typecheckCommand: getScriptCommand(config.packageManager, "typecheck"),
     testCommand: getScriptCommand(config.packageManager, "test"),
@@ -303,6 +371,9 @@ function getPlaywrightVariables(
       true
     ),
     playwrightWorkflowInstallCommand: getInstallCommand(config.packageManager),
+    playwrightWorkflowSetupAction: config.includeMise
+      ? "- uses: jdx/mise-action@v4\n        with:\n          version: 2025.11.5"
+      : "- uses: actions/setup-node@v4\n        with:\n          node-version: lts/*",
     playwrightWorkflowTestCommand: getPlaywrightCommand(config.packageManager, ["test"]),
     playwrightWorkflowAllureGenerateCommand: getBinaryCommand(config.packageManager, "allure", [
       "generate",

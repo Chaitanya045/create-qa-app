@@ -14,6 +14,7 @@ describe("schema", () => {
     const parsed = cliConfigSchema.parse(createAdvancedPlaywrightConfig());
 
     expect(parsed.pomTemplate).toBe("advanced");
+    expect(parsed.includeMise).toBe(false);
     expect(parsed.playwrightReporters).toEqual(["html", "allure"]);
   });
 

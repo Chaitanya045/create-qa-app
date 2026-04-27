@@ -32,6 +32,12 @@ describe("create command helpers", () => {
     ]);
   });
 
+  test("does not add extra package dependencies for mise support", () => {
+    expect(getPlaywrightDependencyPackages(createPlaywrightConfig({ includeMise: true }))).toEqual(
+      getPlaywrightDependencyPackages(createPlaywrightConfig())
+    );
+  });
+
   test("adds optional dependencies for zod and allure", () => {
     expect(getPlaywrightDependencyPackages(createAdvancedPlaywrightConfig())).toEqual(
       expect.arrayContaining(["dotenv", "zod", "allure-playwright", "allure-commandline"])
