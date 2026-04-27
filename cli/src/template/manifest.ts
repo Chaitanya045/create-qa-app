@@ -80,35 +80,31 @@ function formatCommandList(commands: string[]): string {
 }
 
 function formatGettingStartedSteps(config: PlaywrightCliConfig): string {
-  const steps = [
-    `1. Install dependencies with \`${getInstallCommand(config.packageManager)}\`.`,
-    "2. Copy `.env.example` to `.env`.",
-    "3. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment."
-  ];
-
-  let nextStepNumber = 4;
-
   if (config.includeMise) {
-    steps.splice(
-      1,
-      0,
-      "2. Trust `mise.toml` with `mise trust`.",
-      "3. Install pinned tools with `mise install`."
-    );
-    steps[3] = "4. Copy `.env.example` to `.env`.";
-    steps[4] = "5. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment.";
-    nextStepNumber = 6;
+    return [
+      "1. Trust `mise.toml` with `mise trust`.",
+      "2. Install pinned tools with `mise install`.",
+      `3. Install dependencies with \`${getInstallCommand(config.packageManager)}\`.`,
+      "4. Copy `.env.example` to `.env`.",
+      "5. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment.",
+      `6. Run type checks with \`${getScriptCommand(config.packageManager, "typecheck")}\`.`,
+      `7. Format the code with \`${getScriptCommand(config.packageManager, "format")}\`.`,
+      `8. Run lint checks with \`${getScriptCommand(config.packageManager, "lint")}\`.`,
+      "9. Run your test suite.",
+      `10. Install Playwright browsers with \`${getPlaywrightInstallBrowsersCommand(config.packageManager, false)}\`.`
+    ].join("\n");
   }
 
-  steps.push(
-    `${String(nextStepNumber)}. Run type checks with \`${getScriptCommand(config.packageManager, "typecheck")}\`.`,
-    `${String(nextStepNumber + 1)}. Format the code with \`${getScriptCommand(config.packageManager, "format")}\`.`,
-    `${String(nextStepNumber + 2)}. Run lint checks with \`${getScriptCommand(config.packageManager, "lint")}\`.`,
-    `${String(nextStepNumber + 3)}. Run your test suite.`,
-    `${String(nextStepNumber + 4)}. Install Playwright browsers with \`${getPlaywrightInstallBrowsersCommand(config.packageManager, false)}\`.`
-  );
-
-  return steps.join("\n");
+  return [
+    `1. Install dependencies with \`${getInstallCommand(config.packageManager)}\`.`,
+    "2. Copy `.env.example` to `.env`.",
+    "3. Update `BASE_URL`, `USERNAME`, and `PASSWORD` for your target environment.",
+    `4. Run type checks with \`${getScriptCommand(config.packageManager, "typecheck")}\`.`,
+    `5. Format the code with \`${getScriptCommand(config.packageManager, "format")}\`.`,
+    `6. Run lint checks with \`${getScriptCommand(config.packageManager, "lint")}\`.`,
+    "7. Run your test suite.",
+    `8. Install Playwright browsers with \`${getPlaywrightInstallBrowsersCommand(config.packageManager, false)}\`.`
+  ].join("\n");
 }
 
 function formatMiseSection(config: PlaywrightCliConfig): string {
